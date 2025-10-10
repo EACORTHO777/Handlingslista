@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Alexander Cancino - Portfolio & Om mig</title>
+    <meta name="description" content="En minimalistisk, responsiv en-sideswebb om Alexander Cancino: portfolio, om mig, intressen och kontakt.">
+    <link rel="preload" href="bakgrundsbild.jpg" as="image">
+    <link rel="stylesheet" href="stylesheet.css">
+  </head>
+  <body id="top">
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="#top" aria-label="Till toppen">AC</a>
+        <nav class="main-nav" aria-label="Huvudmeny">
+          <ul>
+            <li><a href="#hero">Start</a></li>
+            <li><a href="#about">Om mig</a></li>
+            <li><a href="#work">Intressen</a></li>
+            <li><a href="#contact">Kontakt</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section id="hero" class="section hero" aria-label="Startsida">
+        <div class="container hero-grid">
+          <div class="hero-text">
+            <h1 class="h1"><span class="glitch-hover">Alexander Cancino!</span></h1>
+            <p class="lead">Student i webbprogrammering (fullstack) med fokus på ren kod, tillgänglighet och bra användarupplevelser.</p>
+            <div class="cta-row">
+              <a class="btn btn-primary" href="#work">Se projekt</a>
+              <a class="btn btn-ghost" href="#contact">Kontakta mig</a>
+            </div>
+          </div>
+          <figure class="hero-figure">
+            <img src="portrait.png" width="640" height="640" alt="Porträtt av Alexander Cancino">
+          </figure>
+        </div>
+      </section>
+
+      <section id="about" class="section about" aria-label="Om mig">
+        <div class="container">
+          <h2 class="section-title">Om mig</h2>
+          <div class="about-columns">
+            <article class="card">
+              <h3>Vem jag är</h3>
+              <p>Jag läser Webbprogrammering på Linnéuniversitetet och siktar på fullstackutveckling. Jag gillar struktur, problemlösning och att bygga saker som gör nytta. Jag gillar att lära, utforska och skapa</p>
+            </article>
+            <article class="card">
+              <h3>Erfarenhet i korthet</h3>
+              <p>Bakgrund i ledarskap, försäljning och logistik. Värdesätter effektivitet, tydlig kommunikation och kontinuerliga förbättringar.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="work" class="section work" aria-label="Projekt">
+        <div class="container">
+          <h2 class="section-title">Intressen</h2>
+          <div class="cards-grid">
+            <article class="card proj">
+              <figure class="thumb">
+                <img src="Familj.png" width="800" height="600" alt="bild på en familj">
+              </figure>
+              <div class="card-body">
+                <h3>Familj</h3>
+                <p>Gift & Pappa</p>
+              </div>
+            </article>
+            <article class="card proj">
+              <figure class="thumb">
+                <img src="Sport.png" width="800" height="600" alt="Sportbild">
+              </figure>
+              <div class="card-body">
+                <h3>Sport</h3>
+                <p>Fotboll & Kampsport</p>
+              </div>
+            </article>
+            <article class="card proj">
+              <figure class="thumb">
+                <img src="Datanord.png" width="800" height="600" alt="Bygger dator">
+              </figure>
+              <div class="card-body">
+                <h3>Datanörd</h3>
+                <p>Låt mig bygga din dator?</p>
+              </div>
+            </article>
+            <article class="card proj">
+              <figure class="thumb">
+                <img src="Spel.png" width="800" height="600" alt="Responsivt layout-exempel">
+              </figure>
+              <div class="card-body">
+                <h3>Gaming</h3>
+                <p>Metal Gear Solid är G.O.A.T.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" class="section contact" aria-label="Kontakt">
+        <div class="container contact-grid">
+          <div>
+            <h2 class="section-title">Kontakt</h2>
+            <p>Vill du komma i kontakt? Skicka gärna ett mail.</p>
+            <p><strong>E-post:</strong> <a href="mailto:elias.alexander.cancino@gmail.com">elias.alexander.cancino@gmail.com</a></p>
+          </div>
+          <form class="contact-form" action="#" method="post" aria-label="Kontaktformulär">
+            <label for="name">Namn</label>
+            <input id="name" name="name" type="text" required>
+
+            <label for="email">E-post</label>
+            <input id="email" name="email" type="email" required>
+
+            <label for="message">Meddelande</label>
+            <textarea id="message" name="message" rows="5" required></textarea>
+
+            <button class="btn btn-primary" type="submit">Skicka</button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+      <p>© 2025 <strong>Alexander Cancino</strong></p>
+        <a class="to-top" href="#top" aria-label="Till toppen">Till toppen ↑</a>
+      </div>
+    </footer>
+  </body>
+</html>
