@@ -45,12 +45,21 @@ onSnapshot(collection(db, "items"), snapshot => {
 
 // ================= ADD ITEM =================
 addBtn.addEventListener("click", async () => {
+  console.log("🟢 Klick på Lägg till");
+
   const name = itemInput.value.trim();
   const amount = quantityInput.value;
   const unit = unitInput.value;
   const category = categoryInput.value;
 
-  if (!name || !category) return;
+  console.log("📦 Values:", { name, amount, unit, category });
+
+  if (!name || !category) {
+    console.warn("⛔ Avbruten: name eller category saknas");
+    return;
+  }
+
+  console.log("🚀 Försöker skriva till Firestore...");
 
   await addDoc(collection(db, "items"), {
     name,
@@ -60,6 +69,8 @@ addBtn.addEventListener("click", async () => {
     done: false,
     createdAt: Date.now()
   });
+
+  console.log("✅ addDoc klar");
 
   itemInput.value = "";
   quantityInput.value = "";
