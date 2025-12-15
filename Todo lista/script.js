@@ -1,3 +1,16 @@
+// ===== FIREBASE =====
+const firebaseConfig = {
+  apiKey: "AIzaSyB177SHk2mk3leIILG5U19rpNFhDEd_5CM",
+  authDomain: "handlingslista-9204a.firebaseapp.com",
+  projectId: "handlingslista-9204a",
+  storageBucket: "handlingslista-9204a.firebasestorage.app",
+  messagingSenderId: "87606086562",
+  appId: "1:87606086562:web:49d1daea84d64dfbe580fb"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 console.log("Script loaded");
 
 // ===== ELEMENT =====
@@ -223,3 +236,12 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./service-worker.js");
   });
 }
+
+db.collection("test").add({
+  ok: true,
+  createdAt: new Date()
+}).then(() => {
+  console.log("🔥 Firestore funkar");
+}).catch(err => {
+  console.error("❌ Firestore error", err);
+});
