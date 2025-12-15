@@ -11,7 +11,8 @@ import {
   doc,
   updateDoc,
   query,
-  orderBy
+  orderBy,
+  getDocs
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -25,12 +26,17 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-// 🔥 KRITISKT FÖR SAFARI
+/**
+ * 🔴 KRITISKT FÖR SAFARI iOS
+ * Utan dessa → CORS / Listen-channel blockeras
+ */
 const db = initializeFirestore(app, {
-  experimentalForceLongPolling: true
+  experimentalForceLongPolling: true,
+  experimentalAutoDetectLongPolling: true,
+  useFetchStreams: false
 });
 
-console.log("✅ Firestore init (Safari-safe)");
+console.log("✅ Firestore init (Safari iOS FIXED)");
 
 // ================= DOM =================
 const itemInput = document.getElementById("item-input");
@@ -78,10 +84,10 @@ addBtn.addEventListener("click", async () => {
   categoryInput.value = "";
 });
 
-// ================= CLEAR =================
+// ================= CLEAR LIST =================
 clearBtn.addEventListener("click", async () => {
-  const snap = await onSnapshot(collection(db, "items"), () => {});
-  snap.forEach(async d => {
+  const snapshot = await getDocs(collection(db, "items"));
+  snapshot.forEach(async d => {
     await deleteDoc(doc(db, "items", d.id));
   });
 });
