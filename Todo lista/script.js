@@ -48,29 +48,26 @@ addBtn.addEventListener("click", async () => {
   console.log("🟢 Klick på Lägg till");
 
   const name = itemInput.value.trim();
-  const amount = quantityInput.value;
+  const amount = quantityInput.value || "1";
   const unit = unitInput.value;
-  const category = categoryInput.value;
+  const category = categoryInput.value || "Test";
 
   console.log("📦 Values:", { name, amount, unit, category });
 
-  if (!name || !category) {
-    console.warn("⛔ Avbruten: name eller category saknas");
-    return;
+  try {
+    const docRef = await addDoc(collection(db, "items"), {
+      name,
+      amount,
+      unit,
+      category,
+      done: false,
+      createdAt: Date.now()
+    });
+
+    console.log("✅ addDoc klar, id:", docRef.id);
+  } catch (err) {
+    console.error("❌ addDoc FEL:", err);
   }
-
-  console.log("🚀 Försöker skriva till Firestore...");
-
-  await addDoc(collection(db, "items"), {
-    name,
-    amount,
-    unit,
-    category,
-    done: false,
-    createdAt: Date.now()
-  });
-
-  console.log("✅ addDoc klar");
 
   itemInput.value = "";
   quantityInput.value = "";
