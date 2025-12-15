@@ -36,10 +36,11 @@ let items = [];
 
 // ================= REALTIME LISTENER =================
 onSnapshot(collection(db, "items"), snapshot => {
-  items = snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  }));
+  items = snapshot.docs
+    .map(doc => ({ id: doc.id, ...doc.data() }))
+    .filter(item => item.name && item.category) // 🔥 tar bort skräp
+    .sort((a, b) => b.createdAt - a.createdAt); // 🔥 nyast först
+
   renderItems();
 });
 
@@ -86,19 +87,24 @@ function renderItems() {
   todoList.innerHTML = "";
 
   items.forEach(item => {
-    const li = document.createElement("div");
-    li.textContent = `${item.name} (${item.amount} ${item.unit})`;
+    const amountText =
+      item.amount && item.unit
+        ? ` (${item.amount} ${item.unit})`
+        : "";
 
-    li.style.cursor = "pointer";
-    if (item.done) li.style.textDecoration = "line-through";
+    const div = document.createElement("div");
+    div.textContent = `${item.name}${amountText}`;
 
-    li.addEventListener("click", async () => {
+    div.style.cursor = "pointer";
+    if (item.done) div.style.textDecoration = "line-through";
+
+    div.addEventListener("click", async () => {
       await updateDoc(doc(db, "items", item.id), {
         done: !item.done
       });
     });
 
-    todoList.appendChild(li);
+    todoList.appendChild(div);
   });
 }
 
