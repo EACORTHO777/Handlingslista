@@ -1,4 +1,5 @@
 console.log("🔥 script.js laddad");
+
 // ================= FIREBASE =================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
@@ -8,7 +9,9 @@ import {
   onSnapshot,
   deleteDoc,
   doc,
-  updateDoc
+  updateDoc,
+  query,
+  orderBy
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -23,6 +26,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+console.log("✅ Firebase init klar");
+
 // ================= DOM =================
 const itemInput = document.getElementById("item-input");
 const quantityInput = document.getElementById("quantity-input");
@@ -32,88 +37,89 @@ const addBtn = document.getElementById("add-btn");
 const clearBtn = document.getElementById("clear-btn");
 const todoList = document.getElementById("todo-list");
 
-let items = [];
+// ================= REALTIME =================
+const q = query(
+  collection(db, "items"),
+  orderBy("createdAt", "asc")
+);
 
-// ================= REALTIME LISTENER =================
-onSnapshot(collection(db, "items"), snapshot => {
-  items = snapshot.docs
-    .map(doc => ({ id: doc.id, ...doc.data() }))
-    .filter(item => item.name && item.category) // 🔥 tar bort skräp
-    .sort((a, b) => b.createdAt - a.createdAt); // 🔥 nyast först
-
-  renderItems();
+onSnapshot(q, snapshot => {
+  const items = snapshot.docs.map(d => ({
+    id: d.id,
+    ...d.data()
+  }));
+  renderItems(items);
 });
 
 // ================= ADD ITEM =================
 addBtn.addEventListener("click", async () => {
-  console.log("🟢 Klick på Lägg till");
-
   const name = itemInput.value.trim();
-  const amount = quantityInput.value || "1";
+  const amount = quantityInput.value;
   const unit = unitInput.value;
-  const category = categoryInput.value || "Test";
+  const category = categoryInput.value;
 
-  console.log("📦 Values:", { name, amount, unit, category });
+  if (!name || !amount || !unit || !category) return;
 
-  try {
-    const docRef = await addDoc(collection(db, "items"), {
-      name,
-      amount,
-      unit,
-      category,
-      done: false,
-      createdAt: Date.now()
-    });
-
-    console.log("✅ addDoc klar, id:", docRef.id);
-  } catch (err) {
-    console.error("❌ addDoc FEL:", err);
-  }
+  await addDoc(collection(db, "items"), {
+    name,
+    amount,
+    unit,
+    category,
+    done: false,
+    createdAt: Date.now()
+  });
 
   itemInput.value = "";
   quantityInput.value = "";
   categoryInput.value = "";
 });
 
-// ================= CLEAR =================
+// ================= CLEAR LIST =================
 clearBtn.addEventListener("click", async () => {
-  for (const item of items) {
-    await deleteDoc(doc(db, "items", item.id));
-  }
+  const snap = await collection(db, "items");
+  snap.forEach(async d => {
+    await deleteDoc(doc(db, "items", d.id));
+  });
 });
 
 // ================= RENDER =================
-function renderItems() {
+function renderItems(items) {
   todoList.innerHTML = "";
 
+  const grouped = {};
+
   items.forEach(item => {
-    const amountText =
-      item.amount && item.unit
-        ? ` (${item.amount} ${item.unit})`
-        : "";
+    if (!item.name || !item.amount || !item.unit || !item.category) return;
+    if (!grouped[item.category]) grouped[item.category] = [];
+    grouped[item.category].push(item);
+  });
 
-    const div = document.createElement("div");
-    div.textContent = `${item.name}${amountText}`;
+  Object.entries(grouped).forEach(([category, items]) => {
+    const section = document.createElement("div");
+    section.className = "category-section";
 
-    div.style.cursor = "pointer";
-    if (item.done) div.style.textDecoration = "line-through";
+    const h3 = document.createElement("h3");
+    h3.textContent = category;
+    section.appendChild(h3);
 
-    div.addEventListener("click", async () => {
-      await updateDoc(doc(db, "items", item.id), {
-        done: !item.done
+    const ul = document.createElement("ul");
+
+    items.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = `${item.name} – ${item.amount} ${item.unit}`;
+
+      if (item.done) li.classList.add("done");
+
+      li.addEventListener("click", async () => {
+        await updateDoc(doc(db, "items", item.id), {
+          done: !item.done
+        });
       });
+
+      ul.appendChild(li);
     });
 
-    todoList.appendChild(div);
-  });
-}
-
-// ================= SERVICE WORKER REGISTER =================
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("./service-worker.js")
-      .then(reg => console.log("✅ Service Worker registrerad", reg))
-      .catch(err => console.error("❌ SW-fel", err));
+    section.appendChild(ul);
+    todoList.appendChild(section);
   });
 }
