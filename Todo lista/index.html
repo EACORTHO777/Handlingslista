@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Handlingslista</title>
+
+  <!-- 🔗 CSS (VIKTIGT) -->
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#f7c6d9">
+</head>
+<body>
+
+  <h1>Handlingslista</h1>
+
+  <!-- 🔹 INPUT-RAD (MÅSTE omsluta allt för CSS) -->
+  <div class="input-row">
+    <input
+      id="item-input"
+      type="text"
+      placeholder="Vara"
+      autocomplete="off"
+    />
+
+    <input
+      id="quantity-input"
+      type="number"
+      step="0.1"
+      min="0.1"
+      placeholder="Antal / vikt"
+      autocomplete="off"
+    />
+
+    <select id="unit-input">
+      <option value="st">st</option>
+      <option value="kg">kg</option>
+      <option value="g">g</option>
+    </select>
+
+    <select id="category-input">
+      <option value="">Välj kategori</option>
+      <option value="Frukt & grönt">Frukt & grönt 🍌</option>
+      <option value="Kött & fisk">Kött & fisk 🍖</option>
+      <option value="Mejeri">Mejeri 🐮</option>
+      <option value="Frysvaror">Frysvaror 🧊</option>
+      <option value="Skafferi">Skafferi 🧂</option>
+      <option value="Hygien">Hygien 🧴</option>
+      <option value="Hushåll">Hushåll 🧹</option>
+      <option value="Leå">Leå 🍼</option>
+      <option value="Drycker">Drycker 🥤</option>
+      <option value="Njiåm">Njiåm 🤓</option>
+      <option value="Övrigt">Övrigt 👀</option>
+      <option value="Kissen">Kissen 🐱</option>
+    </select>
+
+    <button id="add-btn" type="button">Lägg till</button>
+    <button id="clear-btn" type="button">Rensa listan</button>
+  </div>
+
+  <!-- 🔹 LISTAN -->
+  <div id="todo-list"></div>
+
+  <!-- 🔗 JS -->
+  <script src="script.js"></script>
+</body>
+</html>
