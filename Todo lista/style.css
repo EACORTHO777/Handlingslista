@@ -1,0 +1,179 @@
+/* ===== RESET ===== */
+* {
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ===== BODY / VAXDUK ===== */
+body {
+  margin: 0;
+  padding: 16px;
+  color: #333;
+  background-color: #fafafa;
+
+  background-image:
+    linear-gradient(rgba(255, 245, 200, 0.55) 50%, transparent 50%),
+    linear-gradient(90deg, rgba(255, 245, 200, 0.55) 50%, transparent 50%),
+    linear-gradient(rgba(255, 255, 255, 0.7) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.7) 1px, transparent 1px);
+
+  background-size:
+    48px 48px,
+    48px 48px,
+    24px 24px,
+    24px 24px;
+}
+
+/* ===== HEADER ===== */
+h1 {
+  margin-bottom: 16px;
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* ===== INPUT BAR ===== */
+.input-row {
+  position: sticky;
+  top: 0;
+  background: #fafafa;
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+  z-index: 10;
+}
+
+.input-row input,
+.input-row select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 8px;
+  font-size: 16px;
+  border-radius: 14px;
+  border: 1px solid #ddd;
+  background: #ffffff;
+}
+
+/* ===== BUTTONS ===== */
+.input-row button {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 8px;
+  font-size: 16px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, #f7c6d9, #e6d9ff);
+  color: #333;
+  font-weight: 500;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+/* ===== CATEGORY CARDS (BASE) ===== */
+.category-section {
+  border-radius: 18px;
+  padding: 14px;
+  margin-bottom: 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+/* ===== CATEGORY COLORS (PASTELL PER KATEGORI) ===== */
+
+/* 🍌 Frukt & grönt */
+.category-frukt {
+  background: #f6fff9;
+}
+
+/* 🍖 Kött & fisk */
+.category-kott {
+  background: #fff0f0;
+}
+
+/* 🐮 Mejeri */
+.category-mejeri {
+  background: #fff6fb;
+}
+
+/* 🧊 Frysvaror */
+.category-frys {
+  background: #f7faff;
+}
+
+/* 🧂 Skafferi */
+.category-skafferi {
+  background: #fffbe6;
+}
+
+/* 🧴 Hygien */
+.category-hygien {
+  background: #f5f0ff;
+}
+
+/* 🧹 Hushåll */
+.category-hushall {
+  background: #f0fff8;
+}
+
+/* 🍼 Leå */
+.category-lea {
+  background: #fff7e6;
+}
+
+/* 🥤 Drycker */
+.category-drycker {
+  background: #eef6ff;
+}
+
+/* 🤓 Njiåm */
+.category-njiam {
+  background: #f3f3f3;
+}
+
+/* 👀 Övrigt */
+.category-ovrigt {
+  background: #fafafa;
+}
+
+/* 🐱 Kissen */
+.category-kissen {
+  background: #fff0fa;
+}
+
+/* ===== CATEGORY HEADER ===== */
+.category-section h3 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: #666;
+  letter-spacing: 0.6px;
+}
+
+/* ===== LIST ===== */
+ul {
+  padding-left: 20px;
+  margin: 0;
+}
+
+li {
+  padding: 8px 0;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* ===== DONE ===== */
+.done {
+  color: #999;
+}
+
+.done del {
+  text-decoration: line-through;
+}
+
+/* ===== DESKTOP ===== */
+@media (min-width: 768px) {
+  body {
+    max-width: 600px;
+    margin: auto;
+  }
+}
