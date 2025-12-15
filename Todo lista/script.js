@@ -1,19 +1,21 @@
 // ================= FIREBASE =================
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getFirestore,
   collection,
   addDoc,
+  deleteDoc,
+  doc,
   onSnapshot,
-  updateDoc,
-  doc
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// 🔥 Din riktiga config (denna är korrekt)
 const firebaseConfig = {
-  apiKey: "AIzaSyB177SHk2mk31eLLG5U19rpNFbDE_5CM",
+  apiKey: "AIzaSyB177SHk2mk3leIILG5U19rpNFhDEd_5CM",
   authDomain: "handlingslista-9204a.firebaseapp.com",
   projectId: "handlingslista-9204a",
-  storageBucket: "handlingslista-9204a.appspot.com",
+  storageBucket: "handlingslista-9204a.firebasestorage.app",
   messagingSenderId: "87606086562",
   appId: "1:87606086562:web:49d1daea84d64dfbe580fb"
 };
