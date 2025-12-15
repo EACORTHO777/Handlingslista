@@ -1,182 +1,78 @@
-// ================= FIREBASE =================
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+// ===== FIREBASE (MODULAR v9) =====
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
   getFirestore,
   collection,
   addDoc,
-  deleteDoc,
-  doc,
   onSnapshot,
-  updateDoc
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-// 🔥 Din riktiga config (denna är korrekt)
+// 🔑 DIN FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyB177SHk2mk3leIILG5U19rpNFhDEd_5CM",
   authDomain: "handlingslista-9204a.firebaseapp.com",
   projectId: "handlingslista-9204a",
-  storageBucket: "handlingslista-9204a.firebasestorage.app",
+  storageBucket: "handlingslista-9204a.appspot.com",
   messagingSenderId: "87606086562",
   appId: "1:87606086562:web:49d1daea84d64dfbe580fb"
 };
 
+// Init
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ================= DOM =================
+// ===== ELEMENT =====
 const itemInput = document.getElementById("item-input");
 const quantityInput = document.getElementById("quantity-input");
 const unitInput = document.getElementById("unit-input");
 const categoryInput = document.getElementById("category-input");
 const addButton = document.getElementById("add-btn");
-const clearButton = document.getElementById("clear-btn");
 const todoList = document.getElementById("todo-list");
 
-// ================= DATA =================
+// ===== STATE =====
 let items = [];
 
-// FAST KATEGORIORNING
-const CATEGORY_ORDER = [
-  "Frukt & grönt",
-  "Kött & fisk",
-  "Mejeri",
-  "Frysvaror",
-  "Skafferi",
-  "Hygien",
-  "Hushåll",
-  "Leå",
-  "Drycker",
-  "Njiåm",
-  "Övrigt",
-  "Kissen"
-];
-
-// ================= HAPTIC =================
-function haptic(type = "light") {
-  if (!("vibrate" in navigator)) return;
-  const map = { light: 10, medium: 20, heavy: 30 };
-  navigator.vibrate(map[type] || 10);
-}
-
-// ================= REALTIME SYNC =================
-onSnapshot(collection(db, "items"), snapshot => {
-  items = snapshot.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
-  renderItems();
-});
-
-// ================= RENDER =================
-function renderItems() {
-  todoList.innerHTML = "";
-
-  CATEGORY_ORDER.forEach(category => {
-    const categoryItems = items.filter(
-      i => i.category === category && !i.done
-    );
-
-    if (categoryItems.length === 0) return;
-
-    const section = document.createElement("div");
-    section.className = "category-section";
-
-    const h3 = document.createElement("h3");
-    h3.textContent = `${category} (${categoryItems.length})`;
-
-    const ul = document.createElement("ul");
-
-    categoryItems.forEach(item => {
-      const li = document.createElement("li");
-
-      const del = document.createElement("del");
-      del.textContent = `${item.name} (${item.amountText})`;
-
-      del.addEventListener("click", () => {
-        haptic("medium");
-        updateDoc(doc(db, "items", item.id), {
-          done: true
-        });
-      });
-
-      li.appendChild(del);
-      ul.appendChild(li);
-    });
-
-    section.appendChild(h3);
-    section.appendChild(ul);
-    todoList.appendChild(section);
-  });
-
-  // ===== KLAR =====
-  const doneItems = items.filter(i => i.done);
-  if (doneItems.length > 0) {
-    const section = document.createElement("div");
-    section.className = "category-section";
-
-    const h3 = document.createElement("h3");
-    h3.textContent = "Klar";
-
-    const ul = document.createElement("ul");
-
-    doneItems.forEach(item => {
-      const li = document.createElement("li");
-      li.className = "done";
-
-      const del = document.createElement("del");
-      del.textContent = `${item.name} (${item.amountText})`;
-
-      del.addEventListener("click", () => {
-        haptic("light");
-        updateDoc(doc(db, "items", item.id), {
-          done: false
-        });
-      });
-
-      li.appendChild(del);
-      ul.appendChild(li);
-    });
-
-    section.appendChild(h3);
-    section.appendChild(ul);
-    todoList.appendChild(section);
-  }
-}
-
-// ================= ADD ITEM =================
-addButton.addEventListener("click", () => {
+// ===== ADD ITEM (SKRIVER TILL FIRESTORE) =====
+addButton.addEventListener("click", async () => {
   const name = itemInput.value.trim();
-  if (!name) return;
+  const qty = quantityInput.value.trim();
+  const unit = unitInput.value;
+  const category = categoryInput.value;
 
-  let amountText = quantityInput.value
-    ? `${quantityInput.value} ${unitInput.value}`
-    : "";
+  if (!name || !category) return;
 
-  const category = categoryInput.value || "Övrigt";
-
-  haptic("heavy");
-
-  addDoc(collection(db, "items"), {
+  await addDoc(collection(db, "items"), {
     name,
-    amountText,
+    amountText: qty ? `${qty} ${unit}` : "",
     category,
     done: false,
-    createdAt: Date.now()
+    createdAt: serverTimestamp()
   });
 
   itemInput.value = "";
   quantityInput.value = "";
-  unitInput.value = "st";
-  categoryInput.value = "";
   itemInput.focus();
 });
 
-// ================= CLEAR LIST =================
-clearButton.addEventListener("click", () => {
-  if (!confirm("Är du säker på att du vill rensa listan?")) return;
-  haptic("heavy");
+// ===== REALTIME LYSSNING =====
+onSnapshot(collection(db, "items"), snapshot => {
+  items = snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
+  renderItems();
+});
+
+// ===== RENDER =====
+function renderItems() {
+  todoList.innerHTML = "";
 
   items.forEach(item => {
-    updateDoc(doc(db, "items", item.id), { done: true });
+    const div = document.createElement("div");
+    div.textContent = `${item.name} (${item.amountText || "-"})`;
+    todoList.appendChild(div);
   });
-});
+}
+
+console.log("🔥 Firebase LIVE");
