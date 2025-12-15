@@ -12,6 +12,21 @@ const todoList = document.getElementById("todo-list");
 // ===== STATE =====
 let items = JSON.parse(localStorage.getItem("items")) || [];
 
+
+
+// ===== HAPTIC FEEDBACK =====
+function haptic(type = "light") {
+  if (!("vibrate" in navigator)) return;
+
+  const patterns = {
+    light: 10,
+    medium: 20,
+    heavy: 30
+  };
+
+  navigator.vibrate(patterns[type] || 10);
+}
+
 // ===== FAST KATEGORIORNING =====
 const CATEGORY_ORDER = [
   "Frukt & grönt",
@@ -104,6 +119,7 @@ if (CATEGORY_CLASS_MAP[category]) {
       // klick = markera klar
       span.addEventListener("click", () => {
         item.done = true;
+        haptic("medium");
         saveItems();
         renderItems();
       });
@@ -138,6 +154,7 @@ if (CATEGORY_CLASS_MAP[category]) {
       // klick = ångra klar
       del.addEventListener("click", () => {
         item.done = false;
+        haptic("light");
         saveItems();
         renderItems();
       });
