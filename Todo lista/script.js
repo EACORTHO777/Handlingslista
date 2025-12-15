@@ -1,4 +1,4 @@
-// 🔥 Firebase v9 (MODULAR)
+// ================= FIREBASE =================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
   getFirestore,
@@ -10,7 +10,6 @@ import {
   updateDoc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-// ✅ Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyB177SHk2mk3leIILG5U19rpNFhDEd_5CM",
   authDomain: "handlingslista-9204a.firebaseapp.com",
@@ -20,11 +19,10 @@ const firebaseConfig = {
   appId: "1:87606086562:web:49d1daea84d64dfbe580fb"
 };
 
-// Init
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// DOM
+// ================= DOM =================
 const itemInput = document.getElementById("item-input");
 const quantityInput = document.getElementById("quantity-input");
 const unitInput = document.getElementById("unit-input");
@@ -33,27 +31,31 @@ const addBtn = document.getElementById("add-btn");
 const clearBtn = document.getElementById("clear-btn");
 const todoList = document.getElementById("todo-list");
 
-// DATA
 let items = [];
 
-// 📡 REALTIME LISTENER (DETTA ÄR MAGIN)
+// ================= REALTIME LISTENER =================
 onSnapshot(collection(db, "items"), snapshot => {
-  items = snapshot.docs.map(d => ({
-    id: d.id,
-    ...d.data()
+  items = snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
   }));
-  render();
+  renderItems();
 });
 
-// ➕ ADD ITEM
+// ================= ADD ITEM =================
 addBtn.addEventListener("click", async () => {
-  if (!itemInput.value || !categoryInput.value) return;
+  const name = itemInput.value.trim();
+  const amount = quantityInput.value;
+  const unit = unitInput.value;
+  const category = categoryInput.value;
+
+  if (!name || !category) return;
 
   await addDoc(collection(db, "items"), {
-    name: itemInput.value,
-    quantity: quantityInput.value || 1,
-    unit: unitInput.value,
-    category: categoryInput.value,
+    name,
+    amount,
+    unit,
+    category,
     done: false,
     createdAt: Date.now()
   });
@@ -63,47 +65,30 @@ addBtn.addEventListener("click", async () => {
   categoryInput.value = "";
 });
 
-// 🧹 CLEAR ALL
+// ================= CLEAR =================
 clearBtn.addEventListener("click", async () => {
   for (const item of items) {
     await deleteDoc(doc(db, "items", item.id));
   }
 });
 
-// 🎨 RENDER
-function render() {
+// ================= RENDER =================
+function renderItems() {
   todoList.innerHTML = "";
 
-  const categories = [...new Set(items.map(i => i.category))];
+  items.forEach(item => {
+    const li = document.createElement("div");
+    li.textContent = `${item.name} (${item.amount} ${item.unit})`;
 
-  categories.forEach(category => {
-    const section = document.createElement("div");
-    section.className = "category-section";
+    li.style.cursor = "pointer";
+    if (item.done) li.style.textDecoration = "line-through";
 
-    const h3 = document.createElement("h3");
-    h3.textContent = category;
-    section.appendChild(h3);
-
-    const ul = document.createElement("ul");
-
-    items
-      .filter(i => i.category === category)
-      .forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = `${item.name} (${item.quantity} ${item.unit})`;
-
-        if (item.done) li.classList.add("done");
-
-        li.addEventListener("click", async () => {
-          await updateDoc(doc(db, "items", item.id), {
-            done: !item.done
-          });
-        });
-
-        ul.appendChild(li);
+    li.addEventListener("click", async () => {
+      await updateDoc(doc(db, "items", item.id), {
+        done: !item.done
       });
+    });
 
-    section.appendChild(ul);
-    todoList.appendChild(section);
+    todoList.appendChild(li);
   });
 }
