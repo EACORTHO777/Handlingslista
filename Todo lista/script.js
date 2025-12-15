@@ -1,30 +1,27 @@
-// ===== FIREBASE =====
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+// ================= FIREBASE =================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  onSnapshot,
+  updateDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "DIN_API_KEY",
-  authDomain: "DIN.authDomain",
-  projectId: "DIN_projectId",
-  storageBucket: "DIN.storageBucket",
-  messagingSenderId: "DIN_senderId",
-  appId: "DIN_appId"
+  apiKey: "AIzaSyB177SHk2mk31eLLG5U19rpNFbDE_5CM",
+  authDomain: "handlingslista-9204a.firebaseapp.com",
+  projectId: "handlingslista-9204a",
+  storageBucket: "handlingslista-9204a.appspot.com",
+  messagingSenderId: "87606086562",
+  appId: "1:87606086562:web:49d1daea84d64dfbe580fb"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ===== TEST =====
-addDoc(collection(db, "test"), {
-  ok: true,
-  createdAt: new Date()
-})
-.then(() => console.log("🔥 Firestore funkar"))
-.catch(err => console.error("❌ Firestore error", err));
-
-console.log("Script loaded");
-
-// ===== ELEMENT =====
+// ================= DOM =================
 const itemInput = document.getElementById("item-input");
 const quantityInput = document.getElementById("quantity-input");
 const unitInput = document.getElementById("unit-input");
@@ -33,25 +30,10 @@ const addButton = document.getElementById("add-btn");
 const clearButton = document.getElementById("clear-btn");
 const todoList = document.getElementById("todo-list");
 
-// ===== STATE =====
-let items = JSON.parse(localStorage.getItem("items")) || [];
+// ================= DATA =================
+let items = [];
 
-
-
-// ===== HAPTIC FEEDBACK =====
-function haptic(type = "light") {
-  if (!("vibrate" in navigator)) return;
-
-  const patterns = {
-    light: 10,
-    medium: 20,
-    heavy: 30
-  };
-
-  navigator.vibrate(patterns[type] || 10);
-}
-
-// ===== FAST KATEGORIORNING =====
+// FAST KATEGORIORNING
 const CATEGORY_ORDER = [
   "Frukt & grönt",
   "Kött & fisk",
@@ -67,88 +49,55 @@ const CATEGORY_ORDER = [
   "Kissen"
 ];
 
-// ===== EMOJIS (PRESENTATION ONLY) =====
-const CATEGORY_EMOJIS = {
-  "Frukt & grönt": "🍌",
-  "Kött & fisk": "🍖",
-  "Mejeri": "🐮",
-  "Frysvaror": "🧊",
-  "Skafferi": "🧂",
-  "Hygien": "🧴",
-  "Hushåll": "🧹",
-  "Leå": "🍼",
-  "Drycker": "🥤",
-  "Njiåm": "🤓",
-  "Övrigt": "👀",
-  "Kissen": "🐱"
-};
-
-// ===== SAVE =====
-function saveItems() {
-  localStorage.setItem("items", JSON.stringify(items));
+// ================= HAPTIC =================
+function haptic(type = "light") {
+  if (!("vibrate" in navigator)) return;
+  const map = { light: 10, medium: 20, heavy: 30 };
+  navigator.vibrate(map[type] || 10);
 }
 
-// ===== RENDER =====
+// ================= REALTIME SYNC =================
+onSnapshot(collection(db, "items"), snapshot => {
+  items = snapshot.docs.map(d => ({
+    id: d.id,
+    ...d.data()
+  }));
+  renderItems();
+});
+
+// ================= RENDER =================
 function renderItems() {
   todoList.innerHTML = "";
 
-  const grouped = {};
-
-  // gruppera per kategori
-  items.forEach(item => {
-    if (!grouped[item.category]) grouped[item.category] = [];
-    grouped[item.category].push(item);
-  });
-
-  // ===== AKTIVA KATEGORIER (FAST ORDNING) =====
   CATEGORY_ORDER.forEach(category => {
-    if (!grouped[category]) return;
+    const categoryItems = items.filter(
+      i => i.category === category && !i.done
+    );
 
-    const activeItems = grouped[category].filter(i => !i.done);
-    if (activeItems.length === 0) return;
+    if (categoryItems.length === 0) return;
 
     const section = document.createElement("div");
-    section.classList.add("category-section");
-
-    const CATEGORY_CLASS_MAP = {
-  "Frukt & grönt": "category-frukt",
-  "Kött & fisk": "category-kott",
-  "Mejeri": "category-mejeri",
-  "Frysvaror": "category-frys",
-  "Skafferi": "category-skafferi",
-  "Hygien": "category-hygien",
-  "Hushåll": "category-hushall",
-  "Leå": "category-lea",
-  "Drycker": "category-drycker",
-  "Njiåm": "category-njiam",
-  "Övrigt": "category-ovrigt",
-  "Kissen": "category-kissen"
-};
-
-if (CATEGORY_CLASS_MAP[category]) {
-  section.classList.add(CATEGORY_CLASS_MAP[category]);
-}
+    section.className = "category-section";
 
     const h3 = document.createElement("h3");
-    h3.textContent = `${CATEGORY_EMOJIS[category] || ""} ${category}`;
+    h3.textContent = `${category} (${categoryItems.length})`;
 
     const ul = document.createElement("ul");
 
-    activeItems.forEach(item => {
+    categoryItems.forEach(item => {
       const li = document.createElement("li");
 
-      const span = document.createElement("span");
-      span.textContent = `${item.name} (${item.amountText})`;
+      const del = document.createElement("del");
+      del.textContent = `${item.name} (${item.amountText})`;
 
-      // klick = markera klar
-      span.addEventListener("click", () => {
-        item.done = true;
+      del.addEventListener("click", () => {
         haptic("medium");
-        saveItems();
-        renderItems();
+        updateDoc(doc(db, "items", item.id), {
+          done: true
+        });
       });
 
-      li.appendChild(span);
+      li.appendChild(del);
       ul.appendChild(li);
     });
 
@@ -157,30 +106,29 @@ if (CATEGORY_CLASS_MAP[category]) {
     todoList.appendChild(section);
   });
 
-  // ===== KLAR (ALLTID SIST) =====
+  // ===== KLAR =====
   const doneItems = items.filter(i => i.done);
   if (doneItems.length > 0) {
     const section = document.createElement("div");
-    section.classList.add("category-section");
+    section.className = "category-section";
 
     const h3 = document.createElement("h3");
-    h3.textContent = "✅ Klar";
+    h3.textContent = "Klar";
 
     const ul = document.createElement("ul");
 
     doneItems.forEach(item => {
       const li = document.createElement("li");
-      li.classList.add("done");
+      li.className = "done";
 
       const del = document.createElement("del");
       del.textContent = `${item.name} (${item.amountText})`;
 
-      // klick = ångra klar
       del.addEventListener("click", () => {
-        item.done = false;
         haptic("light");
-        saveItems();
-        renderItems();
+        updateDoc(doc(db, "items", item.id), {
+          done: false
+        });
       });
 
       li.appendChild(del);
@@ -193,66 +141,40 @@ if (CATEGORY_CLASS_MAP[category]) {
   }
 }
 
-// ===== ADD ITEM =====
+// ================= ADD ITEM =================
 addButton.addEventListener("click", () => {
   const name = itemInput.value.trim();
-  const rawAmount = quantityInput.value.trim();
-  const unit = unitInput.value;
-  const category = categoryInput.value;
+  if (!name) return;
 
-  if (!name || !rawAmount || !category) return;
+  let amountText = quantityInput.value
+    ? `${quantityInput.value} ${unitInput.value}`
+    : "";
 
-  const hasLetters = /[a-zA-Z]/.test(rawAmount);
-  const amountText = hasLetters ? rawAmount : `${rawAmount} ${unit}`;
+  const category = categoryInput.value || "Övrigt";
 
-  items.push({
+  haptic("heavy");
+
+  addDoc(collection(db, "items"), {
     name,
     amountText,
     category,
-    done: false
+    done: false,
+    createdAt: Date.now()
   });
 
-  saveItems();
-  renderItems();
-
-  // nollställ inputs (Safari-safe)
   itemInput.value = "";
   quantityInput.value = "";
-  categoryInput.value = "";
   unitInput.value = "st";
-
-  setTimeout(() => {
-    itemInput.value = "";
-    quantityInput.value = "";
-  }, 0);
-
+  categoryInput.value = "";
   itemInput.focus();
 });
 
-// ===== CLEAR =====
+// ================= CLEAR LIST =================
 clearButton.addEventListener("click", () => {
   if (!confirm("Är du säker på att du vill rensa listan?")) return;
-  items = [];
-  localStorage.clear();
-  renderItems();
-});
+  haptic("heavy");
 
-// ===== INIT =====
-renderItems();
-itemInput.focus();
-
-// ===== PWA =====
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./service-worker.js");
+  items.forEach(item => {
+    updateDoc(doc(db, "items", item.id), { done: true });
   });
-}
-
-db.collection("test").add({
-  ok: true,
-  createdAt: new Date()
-}).then(() => {
-  console.log("🔥 Firestore funkar");
-}).catch(err => {
-  console.error("❌ Firestore error", err);
 });
