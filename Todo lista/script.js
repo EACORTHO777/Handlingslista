@@ -1,15 +1,26 @@
 // ===== FIREBASE =====
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
 const firebaseConfig = {
-  apiKey: "AIzaSyB177SHk2mk3leIILG5U19rpNFhDEd_5CM",
-  authDomain: "handlingslista-9204a.firebaseapp.com",
-  projectId: "handlingslista-9204a",
-  storageBucket: "handlingslista-9204a.firebasestorage.app",
-  messagingSenderId: "87606086562",
-  appId: "1:87606086562:web:49d1daea84d64dfbe580fb"
+  apiKey: "DIN_API_KEY",
+  authDomain: "DIN.authDomain",
+  projectId: "DIN_projectId",
+  storageBucket: "DIN.storageBucket",
+  messagingSenderId: "DIN_senderId",
+  appId: "DIN_appId"
 };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ===== TEST =====
+addDoc(collection(db, "test"), {
+  ok: true,
+  createdAt: new Date()
+})
+.then(() => console.log("🔥 Firestore funkar"))
+.catch(err => console.error("❌ Firestore error", err));
 
 console.log("Script loaded");
 
