@@ -27,16 +27,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 /**
- * 🔴 KRITISKT FÖR SAFARI iOS
- * Utan dessa → CORS / Listen-channel blockeras
+ * ✅ KORREKT SAFARI iOS KONFIGURATION
+ * - endast forceLongPolling
+ * - inga fetch streams
  */
 const db = initializeFirestore(app, {
   experimentalForceLongPolling: true,
-  experimentalAutoDetectLongPolling: true,
   useFetchStreams: false
 });
 
-console.log("✅ Firestore init (Safari iOS FIXED)");
+console.log("✅ Firestore init (Safari korrekt)");
 
 // ================= DOM =================
 const itemInput = document.getElementById("item-input");
