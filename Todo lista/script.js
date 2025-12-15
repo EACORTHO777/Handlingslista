@@ -3,7 +3,7 @@ console.log("🔥 script.js laddad");
 // ================= FIREBASE =================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
-  getFirestore,
+  initializeFirestore,
   collection,
   addDoc,
   onSnapshot,
@@ -24,9 +24,13 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 
-console.log("✅ Firebase init klar");
+// 🔥 KRITISKT FÖR SAFARI
+const db = initializeFirestore(app, {
+  experimentalForceLongPolling: true
+});
+
+console.log("✅ Firestore init (Safari-safe)");
 
 // ================= DOM =================
 const itemInput = document.getElementById("item-input");
@@ -74,9 +78,9 @@ addBtn.addEventListener("click", async () => {
   categoryInput.value = "";
 });
 
-// ================= CLEAR LIST =================
+// ================= CLEAR =================
 clearBtn.addEventListener("click", async () => {
-  const snap = await collection(db, "items");
+  const snap = await onSnapshot(collection(db, "items"), () => {});
   snap.forEach(async d => {
     await deleteDoc(doc(db, "items", d.id));
   });
@@ -89,7 +93,6 @@ function renderItems(items) {
   const grouped = {};
 
   items.forEach(item => {
-    if (!item.name || !item.amount || !item.unit || !item.category) return;
     if (!grouped[item.category]) grouped[item.category] = [];
     grouped[item.category].push(item);
   });
