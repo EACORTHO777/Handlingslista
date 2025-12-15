@@ -1,14 +1,16 @@
-// ===== FIREBASE (MODULAR v9) =====
+// 🔥 Firebase v9 (MODULAR)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
   getFirestore,
   collection,
   addDoc,
   onSnapshot,
-  serverTimestamp
+  deleteDoc,
+  doc,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-// 🔑 DIN FIREBASE CONFIG
+// ✅ Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyB177SHk2mk3leIILG5U19rpNFhDEd_5CM",
   authDomain: "handlingslista-9204a.firebaseapp.com",
@@ -22,57 +24,86 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ===== ELEMENT =====
+// DOM
 const itemInput = document.getElementById("item-input");
 const quantityInput = document.getElementById("quantity-input");
 const unitInput = document.getElementById("unit-input");
 const categoryInput = document.getElementById("category-input");
-const addButton = document.getElementById("add-btn");
+const addBtn = document.getElementById("add-btn");
+const clearBtn = document.getElementById("clear-btn");
 const todoList = document.getElementById("todo-list");
 
-// ===== STATE =====
+// DATA
 let items = [];
 
-// ===== ADD ITEM (SKRIVER TILL FIRESTORE) =====
-addButton.addEventListener("click", async () => {
-  const name = itemInput.value.trim();
-  const qty = quantityInput.value.trim();
-  const unit = unitInput.value;
-  const category = categoryInput.value;
+// 📡 REALTIME LISTENER (DETTA ÄR MAGIN)
+onSnapshot(collection(db, "items"), snapshot => {
+  items = snapshot.docs.map(d => ({
+    id: d.id,
+    ...d.data()
+  }));
+  render();
+});
 
-  if (!name || !category) return;
+// ➕ ADD ITEM
+addBtn.addEventListener("click", async () => {
+  if (!itemInput.value || !categoryInput.value) return;
 
   await addDoc(collection(db, "items"), {
-    name,
-    amountText: qty ? `${qty} ${unit}` : "",
-    category,
+    name: itemInput.value,
+    quantity: quantityInput.value || 1,
+    unit: unitInput.value,
+    category: categoryInput.value,
     done: false,
-    createdAt: serverTimestamp()
+    createdAt: Date.now()
   });
 
   itemInput.value = "";
   quantityInput.value = "";
-  itemInput.focus();
+  categoryInput.value = "";
 });
 
-// ===== REALTIME LYSSNING =====
-onSnapshot(collection(db, "items"), snapshot => {
-  items = snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  }));
-  renderItems();
+// 🧹 CLEAR ALL
+clearBtn.addEventListener("click", async () => {
+  for (const item of items) {
+    await deleteDoc(doc(db, "items", item.id));
+  }
 });
 
-// ===== RENDER =====
-function renderItems() {
+// 🎨 RENDER
+function render() {
   todoList.innerHTML = "";
 
-  items.forEach(item => {
-    const div = document.createElement("div");
-    div.textContent = `${item.name} (${item.amountText || "-"})`;
-    todoList.appendChild(div);
+  const categories = [...new Set(items.map(i => i.category))];
+
+  categories.forEach(category => {
+    const section = document.createElement("div");
+    section.className = "category-section";
+
+    const h3 = document.createElement("h3");
+    h3.textContent = category;
+    section.appendChild(h3);
+
+    const ul = document.createElement("ul");
+
+    items
+      .filter(i => i.category === category)
+      .forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = `${item.name} (${item.quantity} ${item.unit})`;
+
+        if (item.done) li.classList.add("done");
+
+        li.addEventListener("click", async () => {
+          await updateDoc(doc(db, "items", item.id), {
+            done: !item.done
+          });
+        });
+
+        ul.appendChild(li);
+      });
+
+    section.appendChild(ul);
+    todoList.appendChild(section);
   });
 }
-
-console.log("🔥 Firebase LIVE");
