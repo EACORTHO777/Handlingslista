@@ -1,22 +1,14 @@
-const CACHE_NAME = "handlingslista-v1";
-const FILES_TO_CACHE = [
-  "./",
-  "./index.html",
-  "./style.css",
-  "./script.js",
-  "./manifest.json"
-];
+self.addEventListener("install", () => {
+  self.skipWaiting();
+});
 
-self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
-  );
+self.addEventListener("activate", event => {
+  event.waitUntil(self.clients.claim());
 });
 
 self.addEventListener("fetch", event => {
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
-    })
-  );
+  // 🚫 LÅT FIRESTORE VARA IFRED
+  if (event.request.url.includes("firestore.googleapis.com")) {
+    return;
+  }
 });
