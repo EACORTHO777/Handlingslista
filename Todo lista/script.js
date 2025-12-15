@@ -93,3 +93,13 @@ function renderItems() {
     todoList.appendChild(li);
   });
 }
+
+// ================= SERVICE WORKER REGISTER =================
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("./service-worker.js")
+      .then(reg => console.log("✅ Service Worker registrerad", reg))
+      .catch(err => console.error("❌ SW-fel", err));
+  });
+}
