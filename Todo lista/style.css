@@ -235,3 +235,13 @@ li {
   background: #fff0fa;
 }
 
+.logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.logo img {
+  max-width: 220px;
+  height: auto;
+}
