@@ -177,3 +177,61 @@ li {
     margin: auto;
   }
 }
+
+/* ===== CATEGORY CARD ===== */
+.category-card {
+  border-radius: 18px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+/* ===== CATEGORY COLORS ===== */
+.cat-frukt {
+  background: #f6fff9;
+}
+
+.cat-kott {
+  background: #fff0f0;
+}
+
+.cat-mejeri {
+  background: #fff6fb;
+}
+
+.cat-frys {
+  background: #f7faff;
+}
+
+.cat-skafferi {
+  background: #fffbe6;
+}
+
+.cat-hygien {
+  background: #f5f0ff;
+}
+
+.cat-hushall {
+  background: #f0fff8;
+}
+
+.cat-lea {
+  background: #fff7e6;
+}
+
+.cat-drycker {
+  background: #eef6ff;
+}
+
+.cat-njiam {
+  background: #f3f3f3;
+}
+
+.cat-ovrigt {
+  background: #fafafa;
+}
+
+.cat-kissen {
+  background: #fff0fa;
+}
+

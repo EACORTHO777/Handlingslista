@@ -1,4 +1,4 @@
-console.log("🔥 script.js laddad (Realtime DB)");
+console.log("🔥 script.js laddad (Realtime DB – FINAL)");
 
 // ================= FIREBASE =================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
@@ -14,7 +14,8 @@ import {
 const firebaseConfig = {
   apiKey: "AIzaSyB177SHk2mk3leIILG5U19rpNFhDEd_5CM",
   authDomain: "handlingslista-9204a.firebaseapp.com",
-  databaseURL: "https://handlingslista-9204a-default-rtdb.europe-west1.firebasedatabase.app",
+  databaseURL:
+    "https://handlingslista-9204a-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "handlingslista-9204a",
   storageBucket: "handlingslista-9204a.appspot.com",
   messagingSenderId: "87606086562",
@@ -23,6 +24,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const itemsRef = ref(db, "items");
 
 // ================= DOM =================
 const itemInput = document.getElementById("item-input");
@@ -33,10 +35,23 @@ const addBtn = document.getElementById("add-btn");
 const clearBtn = document.getElementById("clear-btn");
 const todoList = document.getElementById("todo-list");
 
-// ================= DB REF =================
-const itemsRef = ref(db, "items");
+// ================= CATEGORY META =================
+const CATEGORY_META = {
+  "Frukt & grönt": { emoji: "🍌", class: "category-frukt" },
+  "Kött & fisk": { emoji: "🍖", class: "category-kott" },
+  "Mejeri": { emoji: "🐮", class: "category-mejeri" },
+  "Frysvaror": { emoji: "🧊", class: "category-frys" },
+  "Skafferi": { emoji: "🧂", class: "category-skafferi" },
+  "Hygien": { emoji: "🧴", class: "category-hygien" },
+  "Hushåll": { emoji: "🧹", class: "category-hushall" },
+  "Leå": { emoji: "🍼", class: "category-lea" },
+  "Drycker": { emoji: "🥤", class: "category-drycker" },
+  "Njiåm": { emoji: "🤓", class: "category-njiam" },
+  "Kissen": { emoji: "🐱", class: "category-kissen" },
+  "Övrigt": { emoji: "👀", class: "category-ovrigt" }
+};
 
-// ================= REALTIME LISTENER =================
+// ================= REALTIME =================
 onValue(itemsRef, snapshot => {
   const data = snapshot.val() || {};
   const items = Object.entries(data).map(([id, value]) => ({
@@ -53,7 +68,7 @@ addBtn.addEventListener("click", () => {
   const unit = unitInput.value;
   const category = categoryInput.value;
 
-  if (!name || !amount || !unit || !category) return;
+  if (!name || !amount || !category) return;
 
   push(itemsRef, {
     name,
@@ -71,6 +86,7 @@ addBtn.addEventListener("click", () => {
 
 // ================= CLEAR LIST =================
 clearBtn.addEventListener("click", () => {
+  if (!confirm("Rensa hela listan?")) return;
   remove(itemsRef);
 });
 
@@ -79,19 +95,20 @@ function renderItems(items) {
   todoList.innerHTML = "";
 
   const grouped = {};
-
   items.forEach(item => {
     if (!grouped[item.category]) grouped[item.category] = [];
     grouped[item.category].push(item);
   });
 
   Object.entries(grouped).forEach(([category, items]) => {
-    const section = document.createElement("div");
-    section.className = "category-section";
+    const meta = CATEGORY_META[category] || CATEGORY_META["Övrigt"];
 
-    const h3 = document.createElement("h3");
-    h3.textContent = category;
-    section.appendChild(h3);
+    const section = document.createElement("div");
+    section.className = `category-section ${meta.class}`;
+
+    const title = document.createElement("h3");
+    title.textContent = `${meta.emoji} ${category}`;
+    section.appendChild(title);
 
     const ul = document.createElement("ul");
 
