@@ -1,5 +1,4 @@
-
-console.log("🔥 script.js laddad (Realtime DB – KLAR-LOGIK)");
+console.log("🔥 script.js laddad (Realtime DB – STABIL)");
 
 // ================= FIREBASE =================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
@@ -45,8 +44,8 @@ const CATEGORY_ORDER = [
   "Hygien",
   "Hushåll",
   "Leå",
-    "Drycker",
-    "Njiåm",
+  "Drycker",
+  "Njiåm",
   "Övrigt",
   "Klar" // ALLTID SIST
 ];
@@ -63,7 +62,8 @@ const CATEGORY_META = {
   "Leå": { emoji: "🍼", class: "category-lea" },
   "Drycker": { emoji: "🥤", class: "category-drycker" },
   "Njiåm": { emoji: "🤓", class: "category-njiam" },
-  "Övrigt": { emoji: "👀", class: "category-ovrigt" }
+  "Övrigt": { emoji: "👀", class: "category-ovrigt" },
+  "Klar": { emoji: "✅", class: "category-klar" }
 };
 
 // ================= DB =================
@@ -111,50 +111,17 @@ clearBtn.addEventListener("click", () => {
 function renderItems(items) {
   todoList.innerHTML = "";
 
-  // Gruppér items per kategori
   const grouped = {};
+
   items.forEach(item => {
-    if (!grouped[item.category]) grouped[item.category] = [];
-    grouped[item.category].push(item);
+    const cat = item.done ? "Klar" : item.category;
+    if (!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(item);
   });
 
-  // Rendera kategorier i FÖRUTBESTÄMD ordning
   CATEGORY_ORDER.forEach(category => {
     if (!grouped[category]) return;
 
-    const section = document.createElement("div");
-    section.className = "category-section";
-
-    // Rubrik
-    const h3 = document.createElement("h3");
-    h3.textContent = category;
-    section.appendChild(h3);
-
-    const ul = document.createElement("ul");
-
-    grouped[category].forEach(item => {
-      const li = document.createElement("li");
-      li.textContent = `${item.name} – ${item.amount} ${item.unit}`;
-
-      if (item.done) li.classList.add("done");
-
-      // Klick = toggle done + flytta till Klar
-      li.addEventListener("click", () => {
-        update(ref(db, `items/${item.id}`), {
-          done: !item.done,
-          category: !item.done ? "Klar" : item.category
-        });
-      });
-
-      ul.appendChild(li);
-    });
-
-    section.appendChild(ul);
-    todoList.appendChild(section);
-  });
-}
-  // === AKTIVA KATEGORIER ===
-  Object.entries(active).forEach(([category, items]) => {
     const meta = CATEGORY_META[category];
     if (!meta) return;
 
@@ -167,13 +134,19 @@ function renderItems(items) {
 
     const ul = document.createElement("ul");
 
-    items.forEach(item => {
+    grouped[category].forEach(item => {
       const li = document.createElement("li");
-      li.textContent = `${item.name} – ${item.amount} ${item.unit}`;
+
+      if (item.done) {
+        li.innerHTML = `<del>${item.name} – ${item.amount} ${item.unit}</del>`;
+        li.classList.add("done");
+      } else {
+        li.textContent = `${item.name} – ${item.amount} ${item.unit}`;
+      }
 
       li.addEventListener("click", () => {
         update(ref(db, `items/${item.id}`), {
-          done: true
+          done: !item.done
         });
       });
 
@@ -183,32 +156,4 @@ function renderItems(items) {
     section.appendChild(ul);
     todoList.appendChild(section);
   });
-
-  // === KLAR (ALLTID SIST) ===
-  if (doneItems.length) {
-    const section = document.createElement("div");
-    section.className = "category-section category-klar";
-
-    const h3 = document.createElement("h3");
-    h3.textContent = "✅ Klar";
-    section.appendChild(h3);
-
-    const ul = document.createElement("ul");
-
-    doneItems.forEach(item => {
-      const li = document.createElement("li");
-      li.innerHTML = `<del>${item.name} – ${item.amount} ${item.unit}</del>`;
-
-      li.addEventListener("click", () => {
-        update(ref(db, `items/${item.id}`), {
-          done: false
-        });
-      });
-
-      ul.appendChild(li);
-    });
-
-    section.appendChild(ul);
-    todoList.appendChild(section);
-  }
 }
