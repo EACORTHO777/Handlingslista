@@ -35,6 +35,22 @@ const addBtn = document.getElementById("add-btn");
 const clearBtn = document.getElementById("clear-btn");
 const todoList = document.getElementById("todo-list");
 
+// ================= CATEGORY ORDER =================
+const CATEGORY_ORDER = [
+  "Frukt & grönt",
+  "Kött & fisk",
+  "Mejeri",
+  "Frysvaror",
+  "Skafferi",
+  "Hygien",
+  "Hushåll",
+  "Leå",
+    "Drycker",
+    "Njiåm",
+  "Övrigt",
+  "Klar" // ALLTID SIST
+];
+
 // ================= CATEGORY META =================
 const CATEGORY_META = {
   "Frukt & grönt": { emoji: "🍌", class: "category-frukt" },
@@ -95,18 +111,48 @@ clearBtn.addEventListener("click", () => {
 function renderItems(items) {
   todoList.innerHTML = "";
 
-  const active = {};
-  const doneItems = [];
-
+  // Gruppér items per kategori
+  const grouped = {};
   items.forEach(item => {
-    if (item.done) {
-      doneItems.push(item);
-    } else {
-      if (!active[item.category]) active[item.category] = [];
-      active[item.category].push(item);
-    }
+    if (!grouped[item.category]) grouped[item.category] = [];
+    grouped[item.category].push(item);
   });
 
+  // Rendera kategorier i FÖRUTBESTÄMD ordning
+  CATEGORY_ORDER.forEach(category => {
+    if (!grouped[category]) return;
+
+    const section = document.createElement("div");
+    section.className = "category-section";
+
+    // Rubrik
+    const h3 = document.createElement("h3");
+    h3.textContent = category;
+    section.appendChild(h3);
+
+    const ul = document.createElement("ul");
+
+    grouped[category].forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = `${item.name} – ${item.amount} ${item.unit}`;
+
+      if (item.done) li.classList.add("done");
+
+      // Klick = toggle done + flytta till Klar
+      li.addEventListener("click", () => {
+        update(ref(db, `items/${item.id}`), {
+          done: !item.done,
+          category: !item.done ? "Klar" : item.category
+        });
+      });
+
+      ul.appendChild(li);
+    });
+
+    section.appendChild(ul);
+    todoList.appendChild(section);
+  });
+}
   // === AKTIVA KATEGORIER ===
   Object.entries(active).forEach(([category, items]) => {
     const meta = CATEGORY_META[category];
