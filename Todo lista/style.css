@@ -241,7 +241,14 @@ li {
   margin-bottom: 16px;
 }
 
+.logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
 .logo img {
-  max-width: 220px;
+  width: 360px;      /* 👈 gör loggan tydligt större */
+  max-width: 90vw;   /* säker på mobil */
   height: auto;
 }
