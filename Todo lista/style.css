@@ -244,11 +244,29 @@ li {
 .logo {
   display: flex;
   justify-content: center;
-  margin-bottom: 24px;
+  margin-bottom: 8px;
 }
 
 .logo img {
   width: 360px;      /* 👈 gör loggan tydligt större */
   max-width: 90vw;   /* säker på mobil */
+  height: auto;
+}
+
+form,
+.form,
+.controls {
+  margin-top: 0;
+}
+
+.logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.logo img {
+  width: 360px;
+  max-width: 90vw;
   height: auto;
 }
