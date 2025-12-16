@@ -1,23 +1,20 @@
-console.log("🔥 script.js laddad");
+console.log("🔥 script.js laddad (Realtime DB)");
 
 // ================= FIREBASE =================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
-  initializeFirestore,
-  collection,
-  addDoc,
-  onSnapshot,
-  deleteDoc,
-  doc,
-  updateDoc,
-  query,
-  orderBy,
-  getDocs
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+  getDatabase,
+  ref,
+  push,
+  onValue,
+  remove,
+  update
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB177SHk2mk3leIILG5U19rpNFhDEd_5CM",
   authDomain: "handlingslista-9204a.firebaseapp.com",
+  databaseURL: "https://handlingslista-9204a-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "handlingslista-9204a",
   storageBucket: "handlingslista-9204a.appspot.com",
   messagingSenderId: "87606086562",
@@ -25,18 +22,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
-/**
- * ✅ KORREKT SAFARI iOS KONFIGURATION
- * - endast forceLongPolling
- * - inga fetch streams
- */
-const db = initializeFirestore(app, {
-  experimentalForceLongPolling: true,
-  useFetchStreams: false
-});
-
-console.log("✅ Firestore init (Safari korrekt)");
+const db = getDatabase(app);
 
 // ================= DOM =================
 const itemInput = document.getElementById("item-input");
@@ -47,22 +33,21 @@ const addBtn = document.getElementById("add-btn");
 const clearBtn = document.getElementById("clear-btn");
 const todoList = document.getElementById("todo-list");
 
-// ================= REALTIME =================
-const q = query(
-  collection(db, "items"),
-  orderBy("createdAt", "asc")
-);
+// ================= DB REF =================
+const itemsRef = ref(db, "items");
 
-onSnapshot(q, snapshot => {
-  const items = snapshot.docs.map(d => ({
-    id: d.id,
-    ...d.data()
+// ================= REALTIME LISTENER =================
+onValue(itemsRef, snapshot => {
+  const data = snapshot.val() || {};
+  const items = Object.entries(data).map(([id, value]) => ({
+    id,
+    ...value
   }));
   renderItems(items);
 });
 
 // ================= ADD ITEM =================
-addBtn.addEventListener("click", async () => {
+addBtn.addEventListener("click", () => {
   const name = itemInput.value.trim();
   const amount = quantityInput.value;
   const unit = unitInput.value;
@@ -70,7 +55,7 @@ addBtn.addEventListener("click", async () => {
 
   if (!name || !amount || !unit || !category) return;
 
-  await addDoc(collection(db, "items"), {
+  push(itemsRef, {
     name,
     amount,
     unit,
@@ -85,11 +70,8 @@ addBtn.addEventListener("click", async () => {
 });
 
 // ================= CLEAR LIST =================
-clearBtn.addEventListener("click", async () => {
-  const snapshot = await getDocs(collection(db, "items"));
-  snapshot.forEach(async d => {
-    await deleteDoc(doc(db, "items", d.id));
-  });
+clearBtn.addEventListener("click", () => {
+  remove(itemsRef);
 });
 
 // ================= RENDER =================
@@ -119,8 +101,8 @@ function renderItems(items) {
 
       if (item.done) li.classList.add("done");
 
-      li.addEventListener("click", async () => {
-        await updateDoc(doc(db, "items", item.id), {
+      li.addEventListener("click", () => {
+        update(ref(db, `items/${item.id}`), {
           done: !item.done
         });
       });
