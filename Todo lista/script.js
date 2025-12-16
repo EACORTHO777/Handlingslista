@@ -1,4 +1,5 @@
-console.log("🔥 script.js laddad (Realtime DB – FINAL)");
+
+console.log("🔥 script.js laddad (Realtime DB – KLAR-LOGIK)");
 
 // ================= FIREBASE =================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
@@ -24,7 +25,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const itemsRef = ref(db, "items");
 
 // ================= DOM =================
 const itemInput = document.getElementById("item-input");
@@ -47,9 +47,11 @@ const CATEGORY_META = {
   "Leå": { emoji: "🍼", class: "category-lea" },
   "Drycker": { emoji: "🥤", class: "category-drycker" },
   "Njiåm": { emoji: "🤓", class: "category-njiam" },
-  "Kissen": { emoji: "🐱", class: "category-kissen" },
   "Övrigt": { emoji: "👀", class: "category-ovrigt" }
 };
+
+// ================= DB =================
+const itemsRef = ref(db, "items");
 
 // ================= REALTIME =================
 onValue(itemsRef, snapshot => {
@@ -68,7 +70,7 @@ addBtn.addEventListener("click", () => {
   const unit = unitInput.value;
   const category = categoryInput.value;
 
-  if (!name || !amount || !category) return;
+  if (!name || !amount || !unit || !category) return;
 
   push(itemsRef, {
     name,
@@ -84,9 +86,8 @@ addBtn.addEventListener("click", () => {
   categoryInput.value = "";
 });
 
-// ================= CLEAR LIST =================
+// ================= CLEAR =================
 clearBtn.addEventListener("click", () => {
-  if (!confirm("Rensa hela listan?")) return;
   remove(itemsRef);
 });
 
@@ -94,21 +95,29 @@ clearBtn.addEventListener("click", () => {
 function renderItems(items) {
   todoList.innerHTML = "";
 
-  const grouped = {};
+  const active = {};
+  const doneItems = [];
+
   items.forEach(item => {
-    if (!grouped[item.category]) grouped[item.category] = [];
-    grouped[item.category].push(item);
+    if (item.done) {
+      doneItems.push(item);
+    } else {
+      if (!active[item.category]) active[item.category] = [];
+      active[item.category].push(item);
+    }
   });
 
-  Object.entries(grouped).forEach(([category, items]) => {
-    const meta = CATEGORY_META[category] || CATEGORY_META["Övrigt"];
+  // === AKTIVA KATEGORIER ===
+  Object.entries(active).forEach(([category, items]) => {
+    const meta = CATEGORY_META[category];
+    if (!meta) return;
 
     const section = document.createElement("div");
     section.className = `category-section ${meta.class}`;
 
-    const title = document.createElement("h3");
-    title.textContent = `${meta.emoji} ${category}`;
-    section.appendChild(title);
+    const h3 = document.createElement("h3");
+    h3.textContent = `${meta.emoji} ${category}`;
+    section.appendChild(h3);
 
     const ul = document.createElement("ul");
 
@@ -116,11 +125,9 @@ function renderItems(items) {
       const li = document.createElement("li");
       li.textContent = `${item.name} – ${item.amount} ${item.unit}`;
 
-      if (item.done) li.classList.add("done");
-
       li.addEventListener("click", () => {
         update(ref(db, `items/${item.id}`), {
-          done: !item.done
+          done: true
         });
       });
 
@@ -130,4 +137,32 @@ function renderItems(items) {
     section.appendChild(ul);
     todoList.appendChild(section);
   });
+
+  // === KLAR (ALLTID SIST) ===
+  if (doneItems.length) {
+    const section = document.createElement("div");
+    section.className = "category-section category-klar";
+
+    const h3 = document.createElement("h3");
+    h3.textContent = "✅ Klar";
+    section.appendChild(h3);
+
+    const ul = document.createElement("ul");
+
+    doneItems.forEach(item => {
+      const li = document.createElement("li");
+      li.innerHTML = `<del>${item.name} – ${item.amount} ${item.unit}</del>`;
+
+      li.addEventListener("click", () => {
+        update(ref(db, `items/${item.id}`), {
+          done: false
+        });
+      });
+
+      ul.appendChild(li);
+    });
+
+    section.appendChild(ul);
+    todoList.appendChild(section);
+  }
 }
