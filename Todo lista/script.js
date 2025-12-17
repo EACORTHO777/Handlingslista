@@ -138,18 +138,54 @@ function renderItems(items) {
 
     const ul = document.createElement("ul");
 
-    sectionItems.forEach(item => {
-      const li = document.createElement("li");
-      li.textContent = `${item.name} – ${item.amount} ${item.unit}`;
+sectionItems.forEach(item => {
+  const li = document.createElement("li");
+  li.textContent = `${item.name} – ${item.amount} ${item.unit}`;
 
-      li.addEventListener("click", () => {
-        update(ref(db, `items/${item.id}`), {
-          done: true
-        });
-      });
+  let startX = 0;
+  let currentX = 0;
+  let swiping = false;
 
-      ul.appendChild(li);
-    });
+  li.addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
+    swiping = true;
+    li.style.transition = "none";
+  });
+
+  li.addEventListener("touchmove", e => {
+    if (!swiping) return;
+    currentX = e.touches[0].clientX - startX;
+
+    if (currentX > 0) {
+      li.style.transform = `translateX(${currentX}px)`;
+      li.style.background = "#ffe6e6";
+    }
+  });
+
+  li.addEventListener("touchend", () => {
+    swiping = false;
+    li.style.transition = "transform 0.2s";
+
+    if (currentX > 80) {
+      // SWIPE = DELETE
+      remove(ref(db, `items/${item.id}`));
+    } else {
+      // SNAP BACK
+      li.style.transform = "translateX(0)";
+      li.style.background = "";
+    }
+
+    startX = 0;
+    currentX = 0;
+  });
+
+  // Klick = flytta till Klar (som nu)
+  li.addEventListener("click", () => {
+    update(ref(db, `items/${item.id}`), { done: true });
+  });
+
+  ul.appendChild(li);
+});
 
     card.appendChild(ul);
     todoList.appendChild(card);
