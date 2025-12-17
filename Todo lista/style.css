@@ -270,3 +270,35 @@ form,
   max-width: 90vw;
   height: auto;
 }
+
+/* ===== SEKTION FÄRGER (STABILT) ===== */
+.cat-frukt {
+  background: #f6fff9;
+}
+
+.cat-kott {
+  background: #fff0f0;
+}
+
+.cat-mejeri {
+  background: #fff6fb;
+}
+
+.cat-hygien {
+  background: #f5f0ff;
+}
+
+.cat-drycker {
+  background: #eef6ff;
+}
+
+.cat-klar {
+  background: #f2f2f2;
+}
+
+/* Säkerställ att sticky input inte skapar vit ruta */
+.input-row {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}

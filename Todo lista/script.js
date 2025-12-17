@@ -1,4 +1,4 @@
-console.log("🔥 script.js laddad (Realtime DB – STABIL)");
+console.log("🔥 script.js laddad – Realtime DB / Sektioner");
 
 // ================= FIREBASE =================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
@@ -24,6 +24,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const itemsRef = ref(db, "items");
 
 // ================= DOM =================
 const itemInput = document.getElementById("item-input");
@@ -34,57 +35,36 @@ const addBtn = document.getElementById("add-btn");
 const clearBtn = document.getElementById("clear-btn");
 const todoList = document.getElementById("todo-list");
 
-// ================= CATEGORY ORDER =================
-const CATEGORY_ORDER = [
-  "Frukt & grönt",
-  "Kött & fisk",
-  "Mejeri",
-  "Frysvaror",
-  "Skafferi",
-  "Hygien",
-  "Hushåll",
-  "Leå",
-  "Drycker",
-  "Njiåm",
-  "Övrigt",
-  "Klar" // ALLTID SIST
-];
-
+// ================= SEKTIONER =================
 const SECTIONS = [
   {
     title: "🥦 Frukt & Grönt / Skafferi mat",
+    class: "cat-frukt",
     categories: ["Frukt & grönt", "Skafferi"]
   },
   {
-    title: "☕️ Kaffe / Skafferi bak",
-    categories: ["Kaffe", "Bakning"]
-  },
-  {
     title: "🥩 Kött & Fisk",
+    class: "cat-kott",
     categories: ["Kött & fisk"]
   },
   {
     title: "🧀 Mejeri / Frys",
+    class: "cat-mejeri",
     categories: ["Mejeri", "Frysvaror"]
   },
   {
     title: "🧼 Hygien / Hushåll / LEÅ",
+    class: "cat-hygien",
     categories: ["Hygien", "Hushåll", "Leå"]
   },
   {
-    title: "🍝 Pasta / Ris / Ketchup",
-    categories: ["Pasta", "Ris", "Ketchup"]
-  },
-  {
     title: "🥤 Drycker & NJIÅM",
+    class: "cat-drycker",
     categories: ["Drycker", "Njiåm"]
   }
 ];
 
-// ================= DB =================
-const itemsRef = ref(db, "items");
-
-// ================= REALTIME =================
+// ================= REALTIME LISTENER =================
 onValue(itemsRef, snapshot => {
   const data = snapshot.val() || {};
   const items = Object.entries(data).map(([id, value]) => ({
@@ -101,7 +81,7 @@ addBtn.addEventListener("click", () => {
   const unit = unitInput.value;
   const category = categoryInput.value;
 
-  if (!name || !amount || !unit || !category) return;
+  if (!name || !amount || !category) return;
 
   push(itemsRef, {
     name,
@@ -115,34 +95,36 @@ addBtn.addEventListener("click", () => {
   itemInput.value = "";
   quantityInput.value = "";
   categoryInput.value = "";
+  itemInput.focus();
 });
 
-// ================= CLEAR =================
+// ================= CLEAR LIST =================
 clearBtn.addEventListener("click", () => {
+  if (!confirm("Rensa hela listan?")) return;
   remove(itemsRef);
 });
 
+// ================= RENDER =================
 function renderItems(items) {
   todoList.innerHTML = "";
 
-  // Dela upp i aktiva + klara
-  const activeItems = items.filter(i => !i.done);
-  const doneItems = items.filter(i => i.done);
+  const active = items.filter(i => !i.done);
+  const done = items.filter(i => i.done);
 
-  // === SEKTIONER ===
+  // ===== SEKTIONER =====
   SECTIONS.forEach(section => {
-    const sectionItems = activeItems.filter(item =>
+    const sectionItems = active.filter(item =>
       section.categories.includes(item.category)
     );
 
     if (!sectionItems.length) return;
 
-    const sectionDiv = document.createElement("div");
-    sectionDiv.className = "category-section";
+    const card = document.createElement("div");
+    card.className = `category-section ${section.class}`;
 
     const h3 = document.createElement("h3");
     h3.textContent = section.title;
-    sectionDiv.appendChild(h3);
+    card.appendChild(h3);
 
     const ul = document.createElement("ul");
 
@@ -151,43 +133,39 @@ function renderItems(items) {
       li.textContent = `${item.name} – ${item.amount} ${item.unit}`;
 
       li.addEventListener("click", () => {
-        update(ref(db, `items/${item.id}`), {
-          done: true
-        });
+        update(ref(db, `items/${item.id}`), { done: true });
       });
 
       ul.appendChild(li);
     });
 
-    sectionDiv.appendChild(ul);
-    todoList.appendChild(sectionDiv);
+    card.appendChild(ul);
+    todoList.appendChild(card);
   });
 
-  // === KLAR (ALLTID SIST) ===
-  if (doneItems.length) {
-    const section = document.createElement("div");
-    section.className = "category-section category-klar";
+  // ===== KLAR (ALLTID SIST) =====
+  if (done.length) {
+    const card = document.createElement("div");
+    card.className = "category-section cat-klar";
 
     const h3 = document.createElement("h3");
     h3.textContent = "✅ Klar";
-    section.appendChild(h3);
+    card.appendChild(h3);
 
     const ul = document.createElement("ul");
 
-    doneItems.forEach(item => {
+    done.forEach(item => {
       const li = document.createElement("li");
       li.innerHTML = `<del>${item.name} – ${item.amount} ${item.unit}</del>`;
 
       li.addEventListener("click", () => {
-        update(ref(db, `items/${item.id}`), {
-          done: false
-        });
+        update(ref(db, `items/${item.id}`), { done: false });
       });
 
       ul.appendChild(li);
     });
 
-    section.appendChild(ul);
-    todoList.appendChild(section);
+    card.appendChild(ul);
+    todoList.appendChild(card);
   }
 }
