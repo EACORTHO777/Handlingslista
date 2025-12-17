@@ -50,21 +50,36 @@ const CATEGORY_ORDER = [
   "Klar" // ALLTID SIST
 ];
 
-// ================= CATEGORY META =================
-const CATEGORY_META = {
-  "Frukt & grönt": { emoji: "🍌", class: "category-frukt" },
-  "Kött & fisk": { emoji: "🍖", class: "category-kott" },
-  "Mejeri": { emoji: "🐮", class: "category-mejeri" },
-  "Frysvaror": { emoji: "🧊", class: "category-frys" },
-  "Skafferi": { emoji: "🧂", class: "category-skafferi" },
-  "Hygien": { emoji: "🧴", class: "category-hygien" },
-  "Hushåll": { emoji: "🧹", class: "category-hushall" },
-  "Leå": { emoji: "🍼", class: "category-lea" },
-  "Drycker": { emoji: "🥤", class: "category-drycker" },
-  "Njiåm": { emoji: "🤓", class: "category-njiam" },
-  "Övrigt": { emoji: "👀", class: "category-ovrigt" },
-  "Klar": { emoji: "✅", class: "category-klar" }
-};
+const SECTIONS = [
+  {
+    title: "🥦 Frukt & Grönt / Skafferi mat",
+    categories: ["Frukt & grönt", "Skafferi"]
+  },
+  {
+    title: "☕️ Kaffe / Skafferi bak",
+    categories: ["Kaffe", "Bakning"]
+  },
+  {
+    title: "🥩 Kött & Fisk",
+    categories: ["Kött & fisk"]
+  },
+  {
+    title: "🧀 Mejeri / Frys",
+    categories: ["Mejeri", "Frysvaror"]
+  },
+  {
+    title: "🧼 Hygien / Hushåll / LEÅ",
+    categories: ["Hygien", "Hushåll", "Leå"]
+  },
+  {
+    title: "🍝 Pasta / Ris / Ketchup",
+    categories: ["Pasta", "Ris", "Ketchup"]
+  },
+  {
+    title: "🥤 Drycker & NJIÅM",
+    categories: ["Drycker", "Njiåm"]
+  }
+];
 
 // ================= DB =================
 const itemsRef = ref(db, "items");
@@ -107,46 +122,65 @@ clearBtn.addEventListener("click", () => {
   remove(itemsRef);
 });
 
-// ================= RENDER =================
 function renderItems(items) {
   todoList.innerHTML = "";
 
-  const grouped = {};
+  // Dela upp i aktiva + klara
+  const activeItems = items.filter(i => !i.done);
+  const doneItems = items.filter(i => i.done);
 
-  items.forEach(item => {
-    const cat = item.done ? "Klar" : item.category;
-    if (!grouped[cat]) grouped[cat] = [];
-    grouped[cat].push(item);
-  });
+  // === SEKTIONER ===
+  SECTIONS.forEach(section => {
+    const sectionItems = activeItems.filter(item =>
+      section.categories.includes(item.category)
+    );
 
-  CATEGORY_ORDER.forEach(category => {
-    if (!grouped[category]) return;
+    if (!sectionItems.length) return;
 
-    const meta = CATEGORY_META[category];
-    if (!meta) return;
-
-    const section = document.createElement("div");
-    section.className = `category-section ${meta.class}`;
+    const sectionDiv = document.createElement("div");
+    sectionDiv.className = "category-section";
 
     const h3 = document.createElement("h3");
-    h3.textContent = `${meta.emoji} ${category}`;
+    h3.textContent = section.title;
+    sectionDiv.appendChild(h3);
+
+    const ul = document.createElement("ul");
+
+    sectionItems.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = `${item.name} – ${item.amount} ${item.unit}`;
+
+      li.addEventListener("click", () => {
+        update(ref(db, `items/${item.id}`), {
+          done: true
+        });
+      });
+
+      ul.appendChild(li);
+    });
+
+    sectionDiv.appendChild(ul);
+    todoList.appendChild(sectionDiv);
+  });
+
+  // === KLAR (ALLTID SIST) ===
+  if (doneItems.length) {
+    const section = document.createElement("div");
+    section.className = "category-section category-klar";
+
+    const h3 = document.createElement("h3");
+    h3.textContent = "✅ Klar";
     section.appendChild(h3);
 
     const ul = document.createElement("ul");
 
-    grouped[category].forEach(item => {
+    doneItems.forEach(item => {
       const li = document.createElement("li");
-
-      if (item.done) {
-        li.innerHTML = `<del>${item.name} – ${item.amount} ${item.unit}</del>`;
-        li.classList.add("done");
-      } else {
-        li.textContent = `${item.name} – ${item.amount} ${item.unit}`;
-      }
+      li.innerHTML = `<del>${item.name} – ${item.amount} ${item.unit}</del>`;
 
       li.addEventListener("click", () => {
         update(ref(db, `items/${item.id}`), {
-          done: !item.done
+          done: false
         });
       });
 
@@ -155,5 +189,5 @@ function renderItems(items) {
 
     section.appendChild(ul);
     todoList.appendChild(section);
-  });
+  }
 }
