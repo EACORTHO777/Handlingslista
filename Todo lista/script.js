@@ -1,4 +1,4 @@
-console.log("🔥 script.js laddad – Realtime DB / Sektioner");
+console.log("🔥 script.js laddad – Realtime DB / SEKTIONER STABIL");
 
 // ================= FIREBASE =================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
@@ -35,31 +35,41 @@ const addBtn = document.getElementById("add-btn");
 const clearBtn = document.getElementById("clear-btn");
 const todoList = document.getElementById("todo-list");
 
-// ================= SEKTIONER =================
+// ================= SEKTIONER (ENDA SANNINGEN FÖR ORDNING) =================
 const SECTIONS = [
   {
     title: "🥦 Frukt & Grönt / Skafferi mat",
-    class: "cat-frukt",
+    className: "cat-frukt",
     categories: ["Frukt & grönt", "Skafferi"]
   },
   {
+    title: "☕️ Kaffe / Skafferi bak",
+    className: "cat-kaffe",
+    categories: ["Kaffe", "Bakning"]
+  },
+  {
     title: "🥩 Kött & Fisk",
-    class: "cat-kott",
+    className: "cat-kott",
     categories: ["Kött & fisk"]
   },
   {
     title: "🧀 Mejeri / Frys",
-    class: "cat-mejeri",
+    className: "cat-mejeri",
     categories: ["Mejeri", "Frysvaror"]
   },
   {
     title: "🧼 Hygien / Hushåll / LEÅ",
-    class: "cat-hygien",
+    className: "cat-hygien",
     categories: ["Hygien", "Hushåll", "Leå"]
   },
   {
+    title: "🍝 Pasta / Ris / Ketchup",
+    className: "cat-pasta",
+    categories: ["Pasta", "Ris", "Ketchup"]
+  },
+  {
     title: "🥤 Drycker & NJIÅM",
-    class: "cat-drycker",
+    className: "cat-drycker",
     categories: ["Drycker", "Njiåm"]
   }
 ];
@@ -81,7 +91,7 @@ addBtn.addEventListener("click", () => {
   const unit = unitInput.value;
   const category = categoryInput.value;
 
-  if (!name || !amount || !category) return;
+  if (!name || !amount || !unit || !category) return;
 
   push(itemsRef, {
     name,
@@ -108,19 +118,19 @@ clearBtn.addEventListener("click", () => {
 function renderItems(items) {
   todoList.innerHTML = "";
 
-  const active = items.filter(i => !i.done);
-  const done = items.filter(i => i.done);
+  const activeItems = items.filter(i => !i.done);
+  const doneItems = items.filter(i => i.done);
 
-  // ===== SEKTIONER =====
+  // ===== SEKTIONER I FAST ORDNING =====
   SECTIONS.forEach(section => {
-    const sectionItems = active.filter(item =>
+    const sectionItems = activeItems.filter(item =>
       section.categories.includes(item.category)
     );
 
     if (!sectionItems.length) return;
 
     const card = document.createElement("div");
-    card.className = `category-section ${section.class}`;
+    card.className = `category-section ${section.className}`;
 
     const h3 = document.createElement("h3");
     h3.textContent = section.title;
@@ -133,7 +143,9 @@ function renderItems(items) {
       li.textContent = `${item.name} – ${item.amount} ${item.unit}`;
 
       li.addEventListener("click", () => {
-        update(ref(db, `items/${item.id}`), { done: true });
+        update(ref(db, `items/${item.id}`), {
+          done: true
+        });
       });
 
       ul.appendChild(li);
@@ -144,7 +156,7 @@ function renderItems(items) {
   });
 
   // ===== KLAR (ALLTID SIST) =====
-  if (done.length) {
+  if (doneItems.length) {
     const card = document.createElement("div");
     card.className = "category-section cat-klar";
 
@@ -154,12 +166,14 @@ function renderItems(items) {
 
     const ul = document.createElement("ul");
 
-    done.forEach(item => {
+    doneItems.forEach(item => {
       const li = document.createElement("li");
       li.innerHTML = `<del>${item.name} – ${item.amount} ${item.unit}</del>`;
 
       li.addEventListener("click", () => {
-        update(ref(db, `items/${item.id}`), { done: false });
+        update(ref(db, `items/${item.id}`), {
+          done: false
+        });
       });
 
       ul.appendChild(li);
