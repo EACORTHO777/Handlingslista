@@ -1,4 +1,4 @@
-console.log("🔥 script.js laddad – Realtime DB / SEKTIONER STABIL");
+console.log("🔥 script.js laddad – SMART AUTO-KATEGORI");
 
 // ================= FIREBASE =================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
@@ -35,53 +35,118 @@ const addBtn = document.getElementById("add-btn");
 const clearBtn = document.getElementById("clear-btn");
 const todoList = document.getElementById("todo-list");
 
-// ================= SEKTIONER (ENDA SANNINGEN FÖR ORDNING) =================
-const SECTIONS = [
+// ================= SMART AUTO MAP =================
+let learnedMap = JSON.parse(localStorage.getItem("learnedMap")) || {};
+
+const AUTO_RULES = [
   {
-    title: "🥦 Frukt & Grönt / Skafferi mat",
-    className: "cat-frukt",
-    categories: ["Frukt & grönt", "Skafferi"]
+    words: ["banan", "bananer", "banana"],
+    category: "Frukt & grönt",
+    unit: "kg"
   },
   {
-    title: "☕️ Kaffe / Skafferi bak",
-    className: "cat-kaffe",
-    categories: ["Kaffe", "Bakning"]
+    words: ["äpple", "apples", "apple"],
+    category: "Frukt & grönt",
+    unit: "kg"
   },
   {
-    title: "🥩 Kött & Fisk",
-    className: "cat-kott",
-    categories: ["Kött & fisk"]
+    words: ["potatis", "potato"],
+    category: "Frukt & grönt",
+    unit: "kg"
   },
   {
-    title: "🧀 Mejeri / Frys",
-    className: "cat-mejeri",
-    categories: ["Mejeri", "Frysvaror"]
+    words: ["mjölk", "milk"],
+    category: "Mejeri",
+    unit: "st"
   },
   {
-    title: "🧼 Hygien / Hushåll / LEÅ",
-    className: "cat-hygien",
-    categories: ["Hygien", "Hushåll", "Leå"]
+    words: ["ost", "cheese"],
+    category: "Mejeri",
+    unit: "st"
   },
   {
-    title: "🍝 Pasta / Ris / Ketchup",
-    className: "cat-pasta",
-    categories: ["Pasta", "Ris", "Ketchup"]
+    words: ["smör", "butter"],
+    category: "Mejeri",
+    unit: "st"
   },
   {
-    title: "🥤 Drycker & NJIÅM",
-    className: "cat-drycker",
-    categories: ["Drycker", "Njiåm"]
+    words: ["kyckling", "chicken"],
+    category: "Kött & fisk",
+    unit: "kg"
+  },
+  {
+    words: ["kött", "beef", "meat"],
+    category: "Kött & fisk",
+    unit: "kg"
+  },
+  {
+    words: ["lax", "salmon", "fish"],
+    category: "Kött & fisk",
+    unit: "kg"
+  },
+  {
+    words: ["pasta"],
+    category: "Pasta",
+    unit: "st"
+  },
+  {
+    words: ["ris", "rice"],
+    category: "Ris",
+    unit: "kg"
+  },
+  {
+    words: ["ketchup"],
+    category: "Ketchup",
+    unit: "st"
+  },
+  {
+    words: ["kaffe", "coffee"],
+    category: "Kaffe",
+    unit: "st"
+  },
+  {
+    words: ["te", "tea"],
+    category: "Kaffe",
+    unit: "st"
   }
 ];
 
-// ================= REALTIME LISTENER =================
-onValue(itemsRef, snapshot => {
-  const data = snapshot.val() || {};
-  const items = Object.entries(data).map(([id, value]) => ({
-    id,
-    ...value
-  }));
-  renderItems(items);
+// ================= AUTO-DETECT =================
+function detectFromText(text) {
+  const value = text.toLowerCase();
+
+  // 1️⃣ kolla om appen har lärt sig tidigare
+  for (const key in learnedMap) {
+    if (value.includes(key)) {
+      return learnedMap[key];
+    }
+  }
+
+  // 2️⃣ annars kolla fasta regler
+  for (const rule of AUTO_RULES) {
+    for (const word of rule.words) {
+      if (value.includes(word)) {
+        return {
+          category: rule.category,
+          unit: rule.unit
+        };
+      }
+    }
+  }
+
+  return null;
+}
+
+// ================= INPUT LISTENER =================
+itemInput.addEventListener("input", () => {
+  const text = itemInput.value.trim();
+  if (!text) return;
+
+  const result = detectFromText(text);
+  if (!result) return;
+
+  if (result.category) categoryInput.value = result.category;
+  if (result.unit) unitInput.value = result.unit;
 });
 
 // ================= ADD ITEM =================
@@ -92,6 +157,11 @@ addBtn.addEventListener("click", () => {
   const category = categoryInput.value;
 
   if (!name || !amount || !unit || !category) return;
+
+  // 🤖 LÄR SIG: spara första ordet
+  const firstWord = name.toLowerCase().split(" ")[0];
+  learnedMap[firstWord] = { category, unit };
+  localStorage.setItem("learnedMap", JSON.stringify(learnedMap));
 
   push(itemsRef, {
     name,
@@ -104,33 +174,47 @@ addBtn.addEventListener("click", () => {
 
   itemInput.value = "";
   quantityInput.value = "";
-  categoryInput.value = "";
   itemInput.focus();
 });
 
-// ================= CLEAR LIST =================
+// ================= CLEAR =================
 clearBtn.addEventListener("click", () => {
   if (!confirm("Rensa hela listan?")) return;
   remove(itemsRef);
 });
 
 // ================= RENDER =================
+const SECTION_ORDER = [
+  { title: "🥦 Frukt & Grönt / Skafferi mat", categories: ["Frukt & grönt", "Skafferi"] },
+  { title: "☕️ Kaffe / Skafferi bak", categories: ["Kaffe", "Bakning"] },
+  { title: "🥩 Kött & Fisk", categories: ["Kött & fisk"] },
+  { title: "🧀 Mejeri / Frys", categories: ["Mejeri", "Frysvaror"] },
+  { title: "🧼 Hygien / Hushåll / LEÅ", categories: ["Hygien", "Hushåll", "Leå"] },
+  { title: "🍝 Pasta / Ris / Ketchup", categories: ["Pasta", "Ris", "Ketchup"] },
+  { title: "🥤 Drycker & NJIÅM", categories: ["Drycker", "Njiåm"] }
+];
+
+onValue(itemsRef, snapshot => {
+  const data = snapshot.val() || {};
+  const items = Object.entries(data).map(([id, value]) => ({
+    id,
+    ...value
+  }));
+  renderItems(items);
+});
+
 function renderItems(items) {
   todoList.innerHTML = "";
 
-  const activeItems = items.filter(i => !i.done);
-  const doneItems = items.filter(i => i.done);
+  const active = items.filter(i => !i.done);
+  const done = items.filter(i => i.done);
 
-  // ===== SEKTIONER I FAST ORDNING =====
-  SECTIONS.forEach(section => {
-    const sectionItems = activeItems.filter(item =>
-      section.categories.includes(item.category)
-    );
-
-    if (!sectionItems.length) return;
+  SECTION_ORDER.forEach(section => {
+    const list = active.filter(i => section.categories.includes(i.category));
+    if (!list.length) return;
 
     const card = document.createElement("div");
-    card.className = `category-section ${section.className}`;
+    card.className = "category-section";
 
     const h3 = document.createElement("h3");
     h3.textContent = section.title;
@@ -138,63 +222,24 @@ function renderItems(items) {
 
     const ul = document.createElement("ul");
 
-sectionItems.forEach(item => {
-  const li = document.createElement("li");
-  li.textContent = `${item.name} – ${item.amount} ${item.unit}`;
+    list.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = `${item.name} – ${item.amount} ${item.unit}`;
 
-  let startX = 0;
-  let currentX = 0;
-  let swiping = false;
+      li.addEventListener("click", () => {
+        update(ref(db, `items/${item.id}`), { done: true });
+      });
 
-  li.addEventListener("touchstart", e => {
-    startX = e.touches[0].clientX;
-    swiping = true;
-    li.style.transition = "none";
-  });
-
-  li.addEventListener("touchmove", e => {
-    if (!swiping) return;
-    currentX = e.touches[0].clientX - startX;
-
-    if (currentX > 0) {
-      li.style.transform = `translateX(${currentX}px)`;
-      li.style.background = "#ffe6e6";
-    }
-  });
-
-  li.addEventListener("touchend", () => {
-    swiping = false;
-    li.style.transition = "transform 0.2s";
-
-    if (currentX > 80) {
-      // SWIPE = DELETE
-      remove(ref(db, `items/${item.id}`));
-    } else {
-      // SNAP BACK
-      li.style.transform = "translateX(0)";
-      li.style.background = "";
-    }
-
-    startX = 0;
-    currentX = 0;
-  });
-
-  // Klick = flytta till Klar (som nu)
-  li.addEventListener("click", () => {
-    update(ref(db, `items/${item.id}`), { done: true });
-  });
-
-  ul.appendChild(li);
-});
+      ul.appendChild(li);
+    });
 
     card.appendChild(ul);
     todoList.appendChild(card);
   });
 
-  // ===== KLAR (ALLTID SIST) =====
-  if (doneItems.length) {
+  if (done.length) {
     const card = document.createElement("div");
-    card.className = "category-section cat-klar";
+    card.className = "category-section";
 
     const h3 = document.createElement("h3");
     h3.textContent = "✅ Klar";
@@ -202,14 +247,12 @@ sectionItems.forEach(item => {
 
     const ul = document.createElement("ul");
 
-    doneItems.forEach(item => {
+    done.forEach(item => {
       const li = document.createElement("li");
       li.innerHTML = `<del>${item.name} – ${item.amount} ${item.unit}</del>`;
 
       li.addEventListener("click", () => {
-        update(ref(db, `items/${item.id}`), {
-          done: false
-        });
+        update(ref(db, `items/${item.id}`), { done: false });
       });
 
       ul.appendChild(li);
