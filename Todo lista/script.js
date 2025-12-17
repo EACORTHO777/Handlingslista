@@ -1,4 +1,4 @@
-console.log("🔥 script.js laddad – SMART AUTO-KATEGORI");
+console.log("🔥 script.js – SMART AUTO + STABILA SEKTIONER");
 
 // ================= FIREBASE =================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
@@ -35,118 +35,89 @@ const addBtn = document.getElementById("add-btn");
 const clearBtn = document.getElementById("clear-btn");
 const todoList = document.getElementById("todo-list");
 
-// ================= SMART AUTO MAP =================
-let learnedMap = JSON.parse(localStorage.getItem("learnedMap")) || {};
-
-const AUTO_RULES = [
+// ================= SEKTIONER (ORDNING + FÄRG) =================
+const SECTION_ORDER = [
   {
-    words: ["banan", "bananer", "banana"],
-    category: "Frukt & grönt",
-    unit: "kg"
+    title: "🥦 Frukt & Grönt / Skafferi mat",
+    categories: ["Frukt & grönt", "Skafferi"],
+    className: "cat-frukt"
   },
   {
-    words: ["äpple", "apples", "apple"],
-    category: "Frukt & grönt",
-    unit: "kg"
+    title: "☕️ Kaffe / Skafferi bak",
+    categories: ["Kaffe", "Bakning"],
+    className: "cat-skafferi"
   },
   {
-    words: ["potatis", "potato"],
-    category: "Frukt & grönt",
-    unit: "kg"
+    title: "🥩 Kött & Fisk",
+    categories: ["Kött & fisk"],
+    className: "cat-kott"
   },
   {
-    words: ["mjölk", "milk"],
-    category: "Mejeri",
-    unit: "st"
+    title: "🧀 Mejeri / Frys",
+    categories: ["Mejeri", "Frysvaror"],
+    className: "cat-mejeri"
   },
   {
-    words: ["ost", "cheese"],
-    category: "Mejeri",
-    unit: "st"
+    title: "🧼 Hygien / Hushåll / LEÅ",
+    categories: ["Hygien", "Hushåll", "Leå"],
+    className: "cat-hygien"
   },
   {
-    words: ["smör", "butter"],
-    category: "Mejeri",
-    unit: "st"
+    title: "🍝 Pasta / Ris / Ketchup",
+    categories: ["Pasta", "Ris", "Ketchup"],
+    className: "cat-skafferi"
   },
   {
-    words: ["kyckling", "chicken"],
-    category: "Kött & fisk",
-    unit: "kg"
-  },
-  {
-    words: ["kött", "beef", "meat"],
-    category: "Kött & fisk",
-    unit: "kg"
-  },
-  {
-    words: ["lax", "salmon", "fish"],
-    category: "Kött & fisk",
-    unit: "kg"
-  },
-  {
-    words: ["pasta"],
-    category: "Pasta",
-    unit: "st"
-  },
-  {
-    words: ["ris", "rice"],
-    category: "Ris",
-    unit: "kg"
-  },
-  {
-    words: ["ketchup"],
-    category: "Ketchup",
-    unit: "st"
-  },
-  {
-    words: ["kaffe", "coffee"],
-    category: "Kaffe",
-    unit: "st"
-  },
-  {
-    words: ["te", "tea"],
-    category: "Kaffe",
-    unit: "st"
+    title: "🥤 Drycker & NJIÅM",
+    categories: ["Drycker", "Njiåm"],
+    className: "cat-drycker"
   }
 ];
 
-// ================= AUTO-DETECT =================
+// ================= AUTO-KATEGORI =================
+let learnedMap = JSON.parse(localStorage.getItem("learnedMap")) || {};
+
+const AUTO_RULES = [
+  { words: ["banan", "bananer", "banana"], category: "Frukt & grönt", unit: "kg" },
+  { words: ["äpple", "apple"], category: "Frukt & grönt", unit: "kg" },
+  { words: ["potatis", "potato"], category: "Frukt & grönt", unit: "kg" },
+  { words: ["mjölk", "milk"], category: "Mejeri", unit: "st" },
+  { words: ["ost", "cheese"], category: "Mejeri", unit: "st" },
+  { words: ["smör", "butter"], category: "Mejeri", unit: "st" },
+  { words: ["kyckling", "chicken"], category: "Kött & fisk", unit: "kg" },
+  { words: ["lax", "salmon", "fish"], category: "Kött & fisk", unit: "kg" },
+  { words: ["pasta"], category: "Pasta", unit: "st" },
+  { words: ["ris", "rice"], category: "Ris", unit: "kg" },
+  { words: ["ketchup"], category: "Ketchup", unit: "st" },
+  { words: ["kaffe", "coffee"], category: "Kaffe", unit: "st" }
+];
+
 function detectFromText(text) {
   const value = text.toLowerCase();
 
-  // 1️⃣ kolla om appen har lärt sig tidigare
   for (const key in learnedMap) {
-    if (value.includes(key)) {
-      return learnedMap[key];
-    }
+    if (value.includes(key)) return learnedMap[key];
   }
 
-  // 2️⃣ annars kolla fasta regler
   for (const rule of AUTO_RULES) {
-    for (const word of rule.words) {
-      if (value.includes(word)) {
-        return {
-          category: rule.category,
-          unit: rule.unit
-        };
-      }
+    if (rule.words.some(w => value.includes(w))) {
+      return { category: rule.category, unit: rule.unit };
     }
   }
 
   return null;
 }
 
-// ================= INPUT LISTENER =================
+// ================= INPUT AUTO =================
 itemInput.addEventListener("input", () => {
   const text = itemInput.value.trim();
   if (!text) return;
 
-  const result = detectFromText(text);
-  if (!result) return;
+  const res = detectFromText(text);
+  if (!res) return;
 
-  if (result.category) categoryInput.value = result.category;
-  if (result.unit) unitInput.value = result.unit;
+  categoryInput.value = res.category;
+  unitInput.value = res.unit;
 });
 
 // ================= ADD ITEM =================
@@ -158,9 +129,8 @@ addBtn.addEventListener("click", () => {
 
   if (!name || !amount || !unit || !category) return;
 
-  // 🤖 LÄR SIG: spara första ordet
-  const firstWord = name.toLowerCase().split(" ")[0];
-  learnedMap[firstWord] = { category, unit };
+  const key = name.toLowerCase().split(" ")[0];
+  learnedMap[key] = { category, unit };
   localStorage.setItem("learnedMap", JSON.stringify(learnedMap));
 
   push(itemsRef, {
@@ -184,16 +154,6 @@ clearBtn.addEventListener("click", () => {
 });
 
 // ================= RENDER =================
-const SECTION_ORDER = [
-  { title: "🥦 Frukt & Grönt / Skafferi mat", categories: ["Frukt & grönt", "Skafferi"] },
-  { title: "☕️ Kaffe / Skafferi bak", categories: ["Kaffe", "Bakning"] },
-  { title: "🥩 Kött & Fisk", categories: ["Kött & fisk"] },
-  { title: "🧀 Mejeri / Frys", categories: ["Mejeri", "Frysvaror"] },
-  { title: "🧼 Hygien / Hushåll / LEÅ", categories: ["Hygien", "Hushåll", "Leå"] },
-  { title: "🍝 Pasta / Ris / Ketchup", categories: ["Pasta", "Ris", "Ketchup"] },
-  { title: "🥤 Drycker & NJIÅM", categories: ["Drycker", "Njiåm"] }
-];
-
 onValue(itemsRef, snapshot => {
   const data = snapshot.val() || {};
   const items = Object.entries(data).map(([id, value]) => ({
@@ -210,11 +170,13 @@ function renderItems(items) {
   const done = items.filter(i => i.done);
 
   SECTION_ORDER.forEach(section => {
-    const list = active.filter(i => section.categories.includes(i.category));
+    const list = active.filter(i =>
+      section.categories.includes(i.category)
+    );
     if (!list.length) return;
 
     const card = document.createElement("div");
-    card.className = "category-section";
+    card.className = `category-section ${section.className}`;
 
     const h3 = document.createElement("h3");
     h3.textContent = section.title;
@@ -225,11 +187,8 @@ function renderItems(items) {
     list.forEach(item => {
       const li = document.createElement("li");
       li.textContent = `${item.name} – ${item.amount} ${item.unit}`;
-
-      li.addEventListener("click", () => {
+      li.onclick = () =>
         update(ref(db, `items/${item.id}`), { done: true });
-      });
-
       ul.appendChild(li);
     });
 
@@ -239,7 +198,7 @@ function renderItems(items) {
 
   if (done.length) {
     const card = document.createElement("div");
-    card.className = "category-section";
+    card.className = "category-section cat-klar";
 
     const h3 = document.createElement("h3");
     h3.textContent = "✅ Klar";
@@ -250,11 +209,8 @@ function renderItems(items) {
     done.forEach(item => {
       const li = document.createElement("li");
       li.innerHTML = `<del>${item.name} – ${item.amount} ${item.unit}</del>`;
-
-      li.addEventListener("click", () => {
+      li.onclick = () =>
         update(ref(db, `items/${item.id}`), { done: false });
-      });
-
       ul.appendChild(li);
     });
 

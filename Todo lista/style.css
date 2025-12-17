@@ -307,3 +307,59 @@ li {
   transition: transform 0.2s ease;
   touch-action: pan-y;
 }
+
+/* ===== BAS FÖR ALLA SEKTIONER ===== */
+.category-section {
+  background: #ffffff; /* fallback */
+  border-radius: 18px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+/* ===== SEKTIONER – STABILA FÄRGER ===== */
+
+.category-section {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+.cat-frukt {
+  background: #f6fff9;
+}
+
+.cat-skafferi {
+  background: #fffbe6;
+}
+
+.cat-kott {
+  background: #fff0f0;
+}
+
+.cat-mejeri {
+  background: #fff6fb;
+}
+
+.cat-hygien {
+  background: #f5f0ff;
+}
+
+.cat-drycker {
+  background: #eef6ff;
+}
+
+.cat-klar {
+  background: #f2f2f2;
+}
+
+/* Rubrik */
+.category-section h3 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: #666;
+  letter-spacing: 0.6px;
+}
