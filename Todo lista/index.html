@@ -18,21 +18,72 @@
 
   <!-- 🔹 INPUT-RAD (MÅSTE omsluta allt för CSS) -->
   <div class="input-row">
-    <input
-      id="item-input"
-      type="text"
-      placeholder="Vara"
-      autocomplete="off"
-    />
+  <input
+  id="item-input"
+  type="text"
+  placeholder="Vara"
+  autocomplete="off"
+/>
 
-    <input
-      id="quantity-input"
-      type="number"
-      step="0.1"
-      min="0.1"
-      placeholder="Antal / vikt"
-      autocomplete="off"
-    />
+<input
+  id="quantity-input"
+  type="number"
+  step="0.1"
+  min="0.1"
+  placeholder="Antal / vikt"
+  autocomplete="off"
+/>
+
+<!-- 🔴 DENNA SAKNAS JUST NU -->
+<select id="unit-input">
+  <option value="st">st</option>
+  <option value="kg">kg</option>
+  <option value="g">g</option>
+</select>
+
+<!-- KATEGORI (MED OPTGROUPS) -->
+<select id="category-input">
+  <option value="">Välj kategori</option>
+
+  <optgroup label="🥦 Frukt & Grönt / Skafferi mat">
+    <option value="Frukt & grönt">Frukt & grönt 🍌</option>
+    <option value="Skafferi">Skafferi 🧂</option>
+  </optgroup>
+
+  <optgroup label="☕️ Kaffe / Skafferi bak">
+    <option value="Kaffe">Kaffe ☕️</option>
+    <option value="Bakning">Bakning 🍰</option>
+  </optgroup>
+
+  <optgroup label="🥩 Kött & Fisk">
+    <option value="Kött & fisk">Kött & fisk 🍖</option>
+  </optgroup>
+
+  <optgroup label="🧀 Mejeri / Frys">
+    <option value="Mejeri">Mejeri 🐮</option>
+    <option value="Frysvaror">Frysvaror 🧊</option>
+  </optgroup>
+
+  <optgroup label="🧼 Hygien / Hushåll / LEÅ">
+    <option value="Hygien">Hygien 🧴</option>
+    <option value="Hushåll">Hushåll 🧹</option>
+    <option value="Leå">LEÅ 🍼</option>
+  </optgroup>
+
+  <optgroup label="🍝 Pasta / Ris / Ketchup">
+    <option value="Pasta">Pasta 🍝</option>
+    <option value="Ris">Ris 🍚</option>
+    <option value="Ketchup">Ketchup 🍅</option>
+  </optgroup>
+
+  <optgroup label="🥤 Drycker & NJIÅM">
+    <option value="Drycker">Drycker 🥤</option>
+    <option value="Njiåm">NJIÅM 🤓</option>
+  </optgroup>
+</select>
+
+<button id="add-btn" type="button">Lägg till</button>
+<button id="clear-btn" type="button">Rensa listan</button>
 
 <select id="category-input">
   <option value="">Välj kategori</option>
