@@ -169,4 +169,4 @@ orangeReset.addEventListener("click", () => {
   if (confirm("Är du säker på att du vill byta inhalator?")) {
     set(orangeRef, MAX_PUFFS);
   }
-});
+});    
