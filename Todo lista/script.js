@@ -1,172 +1,220 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+console.log("🔥 script.js – SMART AUTO + STABILA SEKTIONER");
+
+// ================= FIREBASE =================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
   getDatabase,
   ref,
+  push,
   onValue,
-  get,
-  set,
-  runTransaction
-} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+  remove,
+  update
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-const MAX_PUFFS = 120;
-const WARNING_LIMIT = 10;
+const firebaseConfig = {
+  apiKey: "AIzaSyB177SHk2mk3leIILG5U19rpNFhDEd_5CM",
+  authDomain: "handlingslista-9204a.firebaseapp.com",
+  databaseURL:
+    "https://handlingslista-9204a-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "handlingslista-9204a",
+  storageBucket: "handlingslista-9204a.appspot.com",
+  messagingSenderId: "87606086562",
+  appId: "1:87606086562:web:49d1daea84d64dfbe580fb"
+};
 
-// 🔹 Firebase-config
-const configResponse = await fetch("./config.json");
-const configData = await configResponse.json();
-const firebaseConfig = configData.firebase;
-
-// 🔥 Init Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const itemsRef = ref(db, "items");
 
-// 🔹 Datum helpers
-function getDate(offset = 0) {
-  const d = new Date();
-  d.setDate(d.getDate() + offset);
-  return d.toISOString().split("T")[0];
-}
-const today = getDate(0);
+// ================= DOM =================
+const itemInput = document.getElementById("item-input");
+const quantityInput = document.getElementById("quantity-input");
+const unitInput = document.getElementById("unit-input");
+const categoryInput = document.getElementById("category-input");
+const addBtn = document.getElementById("add-btn");
+const clearBtn = document.getElementById("clear-btn");
+const todoList = document.getElementById("todo-list");
 
-// 🔹 Databas-referenser
-const blueRef = ref(db, "apps/astmaApp/inhalers/blue");
-const orangeRef = ref(db, "apps/astmaApp/inhalers/orange");
-
-const blueLogsRef = ref(db, "apps/astmaApp/logs/blue");
-const orangeLogsRef = ref(db, "apps/astmaApp/logs/orange");
-
-// 🔹 UI-element
-const blueCard = document.querySelector(".card.blue");
-const orangeCard = document.querySelector(".card.orange");
-
-const blueCountEl = document.getElementById("blueCount");
-const orangeCountEl = document.getElementById("orangeCount");
-
-const blueWarningEl = document.getElementById("blueWarning");
-const orangeWarningEl = document.getElementById("orangeWarning");
-
-const blueTodayEl = document.getElementById("blueToday");
-const orangeTodayEl = document.getElementById("orangeToday");
-
-const blueHistoryEl = document.getElementById("blueHistory");
-const orangeHistoryEl = document.getElementById("orangeHistory");
-
-const blueMinus = document.getElementById("blueMinus");
-const bluePlus = document.getElementById("bluePlus");
-const blueReset = document.getElementById("blueResetBtn");
-
-const orangeMinus = document.getElementById("orangeMinus");
-const orangePlus = document.getElementById("orangePlus");
-const orangeReset = document.getElementById("orangeResetBtn");
-
-// 🔹 Initiera värden
-async function ensureInitial(ref, value) {
-  const snap = await get(ref);
-  if (snap.val() === null) await set(ref, value);
-}
-
-await ensureInitial(blueRef, MAX_PUFFS);
-await ensureInitial(orangeRef, MAX_PUFFS);
-
-// 🔄 Puff-animation
-function puffFeedback(el) {
-  el.classList.remove("puff");
-  void el.offsetWidth;
-  el.classList.add("puff");
-}
-
-// 🔄 Uppdatera UI + varningsfärger
-function updateUI(count, countEl, warningEl, cardEl) {
-  countEl.innerText = count;
-
-  cardEl.classList.remove("warning", "critical");
-
-  if (count === 0) {
-    warningEl.innerText = "❌ Slut – byt inhalator NU";
-    cardEl.classList.add("critical");
-  } else if (count <= WARNING_LIMIT) {
-    warningEl.innerText = "⚠️ Dags att köpa ny inhalator";
-    cardEl.classList.add("warning");
-  } else {
-    warningEl.innerText = "";
+// ================= SEKTIONER (ORDNING + FÄRG) =================
+const SECTION_ORDER = [
+  {
+    title: "🥦 Frukt & Grönt / Skafferi mat",
+    categories: ["Frukt & grönt", "Skafferi"],
+    className: "cat-frukt"
+  },
+  {
+    title: "☕️ Kaffe / Skafferi bak",
+    categories: ["Kaffe", "Bakning"],
+    className: "cat-skafferi"
+  },
+  {
+    title: "🥩 Kött & Fisk",
+    categories: ["Kött & fisk"],
+    className: "cat-kott"
+  },
+  {
+    title: "🧀 Mejeri / Frys",
+    categories: ["Mejeri", "Frysvaror"],
+    className: "cat-mejeri"
+  },
+  {
+    title: "🧼 Hygien / Hushåll / LEÅ",
+    categories: ["Hygien", "Hushåll", "Leå"],
+    className: "cat-hygien"
+  },
+  {
+    title: "🍝 Pasta / Ris / Ketchup",
+    categories: ["Pasta", "Ris", "Ketchup"],
+    className: "cat-skafferi"
+  },
+  {
+    title: "🥤 Drycker & NJIÅM",
+    categories: ["Drycker", "Njiåm"],
+    className: "cat-drycker"
   }
-}
+];
 
-// 🔄 Live-sync puffar kvar
-onValue(blueRef, snap => {
-  updateUI(snap.val() ?? 0, blueCountEl, blueWarningEl, blueCard);
-});
+// ================= AUTO-KATEGORI =================
+let learnedMap = JSON.parse(localStorage.getItem("learnedMap")) || {};
 
-onValue(orangeRef, snap => {
-  updateUI(snap.val() ?? 0, orangeCountEl, orangeWarningEl, orangeCard);
-});
+const AUTO_RULES = [
+  { words: ["banan", "bananer", "banana"], category: "Frukt & grönt", unit: "kg" },
+  { words: ["äpple", "apple"], category: "Frukt & grönt", unit: "kg" },
+  { words: ["potatis", "potato"], category: "Frukt & grönt", unit: "kg" },
+  { words: ["mjölk", "milk"], category: "Mejeri", unit: "st" },
+  { words: ["ost", "cheese"], category: "Mejeri", unit: "st" },
+  { words: ["smör", "butter"], category: "Mejeri", unit: "st" },
+  { words: ["kyckling", "chicken"], category: "Kött & fisk", unit: "kg" },
+  { words: ["lax", "salmon", "fish"], category: "Kött & fisk", unit: "kg" },
+  { words: ["pasta"], category: "Pasta", unit: "st" },
+  { words: ["ris", "rice"], category: "Ris", unit: "kg" },
+  { words: ["ketchup"], category: "Ketchup", unit: "st" },
+  { words: ["kaffe", "coffee"], category: "Kaffe", unit: "st" }
+];
 
-// 🔄 Dagssummering + historik
-function updateHistory(logs, todayEl, historyEl) {
-  const todayCount = logs?.[today] ?? 0;
-  todayEl.innerText = `Idag: ${todayCount} doser`;
+function detectFromText(text) {
+  const value = text.toLowerCase();
 
-  let total7 = 0;
-  let yesterday = logs?.[getDate(-1)] ?? 0;
-
-  for (let i = 0; i < 7; i++) {
-    total7 += logs?.[getDate(-i)] ?? 0;
+  for (const key in learnedMap) {
+    if (value.includes(key)) return learnedMap[key];
   }
 
-  historyEl.innerText =
-    `Igår: ${yesterday} doser · Senaste 7 dagar: ${total7} doser`;
-}
-
-onValue(blueLogsRef, snap => {
-  updateHistory(snap.val(), blueTodayEl, blueHistoryEl);
-});
-
-onValue(orangeLogsRef, snap => {
-  updateHistory(snap.val(), orangeTodayEl, orangeHistoryEl);
-});
-
-// ➖ Ta puff + logga
-function takePuff(inhalerRef, logsRef, countEl) {
-  const todayRef = ref(db, `${logsRef.key}/${today}`);
-
-  puffFeedback(countEl);
-
-  runTransaction(inhalerRef, current =>
-    current > 0 ? current - 1 : current
-  );
-
-  runTransaction(todayRef, current =>
-    (current ?? 0) + 1
-  );
-}
-
-blueMinus.addEventListener("click", () =>
-  takePuff(blueRef, blueLogsRef, blueCountEl)
-);
-
-orangeMinus.addEventListener("click", () =>
-  takePuff(orangeRef, orangeLogsRef, orangeCountEl)
-);
-
-// ➕ Lägg tillbaka puff (korrigering)
-function addBack(inhalerRef) {
-  runTransaction(inhalerRef, current =>
-    current < MAX_PUFFS ? current + 1 : current
-  );
-}
-
-bluePlus.addEventListener("click", () => addBack(blueRef));
-orangePlus.addEventListener("click", () => addBack(orangeRef));
-
-// 🔁 Ny inhalator
-blueReset.addEventListener("click", () => {
-  if (confirm("Är du säker på att du vill byta inhalator?")) {
-    set(blueRef, MAX_PUFFS);
+  for (const rule of AUTO_RULES) {
+    if (rule.words.some(w => value.includes(w))) {
+      return { category: rule.category, unit: rule.unit };
+    }
   }
+
+  return null;
+}
+
+// ================= INPUT AUTO =================
+itemInput.addEventListener("input", () => {
+  const text = itemInput.value.trim();
+  if (!text) return;
+
+  const res = detectFromText(text);
+  if (!res) return;
+
+  categoryInput.value = res.category;
+  unitInput.value = res.unit;
 });
 
-orangeReset.addEventListener("click", () => {
-  if (confirm("Är du säker på att du vill byta inhalator?")) {
-    set(orangeRef, MAX_PUFFS);
+// ================= ADD ITEM =================
+addBtn.addEventListener("click", () => {
+  const name = itemInput.value.trim();
+  const amount = quantityInput.value;
+  const unit = unitInput.value;
+  const category = categoryInput.value;
+
+  if (!name || !amount || !unit || !category) return;
+
+  const key = name.toLowerCase().split(" ")[0];
+  learnedMap[key] = { category, unit };
+  localStorage.setItem("learnedMap", JSON.stringify(learnedMap));
+
+  push(itemsRef, {
+    name,
+    amount,
+    unit,
+    category,
+    done: false,
+    createdAt: Date.now()
+  });
+
+  itemInput.value = "";
+  quantityInput.value = "";
+  itemInput.focus();
+});
+
+// ================= CLEAR =================
+clearBtn.addEventListener("click", () => {
+  if (!confirm("Rensa hela listan?")) return;
+  remove(itemsRef);
+});
+
+// ================= RENDER =================
+onValue(itemsRef, snapshot => {
+  const data = snapshot.val() || {};
+  const items = Object.entries(data).map(([id, value]) => ({
+    id,
+    ...value
+  }));
+  renderItems(items);
+});
+
+function renderItems(items) {
+  todoList.innerHTML = "";
+
+  const active = items.filter(i => !i.done);
+  const done = items.filter(i => i.done);
+
+  SECTION_ORDER.forEach(section => {
+    const list = active.filter(i =>
+      section.categories.includes(i.category)
+    );
+    if (!list.length) return;
+
+    const card = document.createElement("div");
+    card.className = `category-section ${section.className}`;
+
+    const h3 = document.createElement("h3");
+    h3.textContent = section.title;
+    card.appendChild(h3);
+
+    const ul = document.createElement("ul");
+
+    list.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = `${item.name} – ${item.amount} ${item.unit}`;
+      li.onclick = () =>
+        update(ref(db, `items/${item.id}`), { done: true });
+      ul.appendChild(li);
+    });
+
+    card.appendChild(ul);
+    todoList.appendChild(card);
+  });
+
+  if (done.length) {
+    const card = document.createElement("div");
+    card.className = "category-section cat-klar";
+
+    const h3 = document.createElement("h3");
+    h3.textContent = "✅ Klar";
+    card.appendChild(h3);
+
+    const ul = document.createElement("ul");
+
+    done.forEach(item => {
+      const li = document.createElement("li");
+      li.innerHTML = `<del>${item.name} – ${item.amount} ${item.unit}</del>`;
+      li.onclick = () =>
+        update(ref(db, `items/${item.id}`), { done: false });
+      ul.appendChild(li);
+    });
+
+    card.appendChild(ul);
+    todoList.appendChild(card);
   }
-});    
+}
