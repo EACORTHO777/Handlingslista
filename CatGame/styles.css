@@ -1,0 +1,175 @@
+body {
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  background: #87ceeb;
+}
+
+#game {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(to bottom, #87ceeb, #c7f0bd);
+  overflow: hidden;
+}
+
+/* MARK */
+#game::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: linear-gradient(to bottom, #6fe36f, #3e8e41);
+  box-shadow:
+    inset 0 6px 0 rgba(255,255,255,0.35),
+    inset 0 -10px 0 rgba(0,0,0,0.25);
+}
+
+/* HUD */
+#hud {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  flex-direction: column;
+align-items: center;
+  gap: 10px;
+
+  pointer-events: none;
+}
+
+#game-logo {
+  max-width: 80vw;
+  max-height: 140px;   /* 👈 styr höjden */
+  height: auto;
+  border-bottom:none;
+
+  object-fit: scale-down;
+  display: block;
+
+  filter: drop-shadow(-10px 40px 60px rgba(0,0,0,0.25));
+}
+
+#hud h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+#score {
+  margin-top: 4px;
+}
+
+/* KATT */
+#cat {
+  position: absolute;
+  width: 200px;
+  pointer-events: none;
+}
+
+/* PLATTFORM */
+.platform {
+  position: absolute;
+  width: 200px;
+  height: 40px;
+  background: white;
+  border-radius: 999px;
+  box-shadow:
+    0 6px 0 rgba(255,255,255,0.6),
+    0 10px 16px rgba(0,0,0,0.2);
+}
+
+/* FISK */
+.fish {
+  position: absolute;
+  font-size: 3rem;
+}
+
+#score {
+      top: 140px;              /* justera vid behov */
+    min-width: 220px;
+  justify-content: center;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  background: linear-gradient(
+    to bottom,
+    #ffd6e8,
+    #f7b7d3
+  );
+
+  padding: 12px 22px;
+  border-radius: 999px;
+
+  font-size: 1rem;       /* STÖRRE TEXT */
+  font-weight: 700;
+  color: #7a2e4a;
+
+box-shadow:
+  0 10px 20px rgba(0,0,0,0.18);
+
+  pointer-events: none;
+}
+
+.fish-icon {
+  font-size: 1.2rem;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.25));
+}
+
+#score {
+  position: absolute;
+  top: 140px;              /* justera vid behov */
+  left: 50%;
+  transform: translateX(-50%);
+
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  background: linear-gradient(
+    to bottom,
+    #ffd6e8,
+    #f7b7d3
+  );
+
+  padding: 8px 36px;
+  border-radius: 999px;
+
+  font-size: 3rem;       /* STÖRRE TEXT */
+  font-weight: 700;
+  color: #7a2e4a;
+
+  box-shadow:
+    0 10px 20px rgba(0,0,0,0.18),
+    inset 0 2px 0 rgba(255,255,255,0.7);
+
+  pointer-events: none;
+}
+
+#score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.score-fish {
+  font-size: 2.6rem;   /* 🐟 STORLEK */
+  line-height: 1;
+}
+
+.score-number {
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.score-text {
+  font-size: 1.8rem;
+  opacity: 0.8;
+}
