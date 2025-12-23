@@ -1,0 +1,176 @@
+:root {
+  --bg: #f6f8fb;
+  --card-bg: #ffffff;
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+
+  --danger: #dc2626;
+  --warning: #f59e0b;
+  --success: #16a34a;
+
+  --blue: #2563eb;
+  --green: #16a34a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  background: var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+               Roboto, Helvetica, Arial, sans-serif;
+  color: var(--text-main);
+}
+
+.app {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 22px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+.card.alvedon {
+  border-left: 6px solid var(--blue);
+}
+
+.card.ipren {
+  border-left: 6px solid var(--green);
+}
+
+.card h2 {
+  margin: 0 0 10px 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.timer {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.last-given {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+.progress {
+  width: 100%;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  transition: width 0.5s linear;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  background: var(--blue);
+  color: white;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: #c7d2fe;
+  cursor: not-allowed;
+}
+
+.reset-btn {
+  margin-top: 8px;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.reset-btn:hover {
+  text-decoration: underline;
+}
+
+.progress {
+  pointer-events: none;
+}
+
+button {
+  position: relative;
+  z-index: 2;
+}
+
+/* 🔧 Safari click-fix */
+.card {
+  position: relative;
+  overflow: visible; /* VIKTIGT */
+}
+
+.progress,
+.progress * {
+  pointer-events: none;
+}
+
+button,
+.reset-btn {
+  position: relative;
+  z-index: 10;
+}
+
+.status-box {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 12px;
+  color: white;
+  background: #9ca3af; /* default grå */
+}
+
+.status-wait {
+  background: #dc2626; /* röd */
+}
+
+.status-warning {
+  background: #f59e0b; /* orange */
+}
+
+.status-ok {
+  background: #16a34a; /* grön */
+}

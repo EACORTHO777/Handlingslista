@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Medicin till LEÅ</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#2563eb" />
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+  <div class="app">
+    <h1>Medicin till LEÅ</h1>
+
+    <!-- Alvedon -->
+    <div class="card alvedon">
+      <h2>Alvedon</h2>
+
+      <div id="alvedon-status" class="status-box">–</div>
+      <p id="alvedon-timer" class="timer">–</p>
+
+      <div class="progress">
+        <div id="alvedon-progress" class="progress-bar"></div>
+      </div>
+
+      <p id="alvedon-last" class="last-given">Senast given: –</p>
+
+      <button type="button" id="alvedon-btn">Ge Alvedon</button>
+      <button type="button" id="alvedon-reset" class="reset-btn">Nollställ</button>
+    </div>
+
+    <!-- Ipren -->
+    <div class="card ipren">
+      <h2>Ipren</h2>
+
+      <div id="ipren-status" class="status-box">–</div>
+      <p id="ipren-timer" class="timer">–</p>
+
+      <div class="progress">
+        <div id="ipren-progress" class="progress-bar"></div>
+      </div>
+
+      <p id="ipren-last" class="last-given">Senast given: –</p>
+
+      <button type="button" id="ipren-btn">Ge Ipren</button>
+      <button type="button" id="ipren-reset" class="reset-btn">Nollställ</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js");
+    }
+  </script>
+</body>
+</html>
