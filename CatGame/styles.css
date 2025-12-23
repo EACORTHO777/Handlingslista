@@ -1,21 +1,33 @@
-body {
-  margin: 0;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  font-family: Arial, sans-serif;
-  background: #87ceeb;
+/* ===============================
+   RESET & BAS
+   =============================== */
+* {
+  box-sizing: border-box;
+  touch-action: manipulation;
 }
 
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #87ceeb;
+  overflow: hidden;
+}
+
+/* ===============================
+   SPELPLAN
+   =============================== */
 #game {
   position: relative;
   width: 100vw;
-  height: 100vh;
+  height: 100dvh; /* iOS FIX */
   background: linear-gradient(to bottom, #87ceeb, #c7f0bd);
   overflow: hidden;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* MARK */
+/* ===============================
+   MARK
+   =============================== */
 #game::after {
   content: "";
   position: absolute;
@@ -29,47 +41,80 @@ body {
     inset 0 -10px 0 rgba(0,0,0,0.25);
 }
 
-/* HUD */
+/* ===============================
+   HUD
+   =============================== */
 #hud {
   position: absolute;
-  top: 24px;
+  top: 16px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 10;
+  display: flex;
   flex-direction: column;
-align-items: center;
-  gap: 10px;
-
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
   pointer-events: none;
 }
 
+/* LOGGA */
 #game-logo {
-  max-width: 50vw;
-  max-height: auto;   /* 👈 styr höjden */
+  max-width: 80vw;
+  max-height: 80px;
   height: auto;
-  border-bottom:none;
-
-  object-fit: scale-down;
   display: block;
 }
 
-#hud h1 {
-  margin: 0;
-  font-size: 1.4rem;
-}
-
+/* ===============================
+   SCORE / FISKBUBBLA
+   =============================== */
 #score {
-  margin-top: 1px;
-}
-
-/* KATT */
-#cat {
   position: absolute;
-  width: 200px;
+  top: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  min-width: 180px;
+  padding: 10px 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  background: linear-gradient(#ffd6e8, #f7b7d3);
+  border-radius: 999px;
+
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #7a2e4a;
+
+  box-shadow: 0 10px 20px rgba(0,0,0,0.18);
   pointer-events: none;
 }
 
-/* PLATTFORM */
+.score-fish {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.score-number,
+.score-text {
+  font-size: 1.1rem;
+}
+
+/* ===============================
+   KATT
+   =============================== */
+#cat {
+  position: absolute;
+  width: 160px;
+  pointer-events: none;
+}
+
+/* ===============================
+   PLATTFORMAR
+   =============================== */
 .platform {
   position: absolute;
   width: 200px;
@@ -81,112 +126,31 @@ align-items: center;
     0 10px 16px rgba(0,0,0,0.2);
 }
 
-/* FISK */
+/* ===============================
+   FISKAR I BANAN
+   =============================== */
 .fish {
   position: absolute;
   font-size: 3rem;
 }
 
-#score {
-      top: 140px;              /* justera vid behov */
-    min-width: 220px;
-  justify-content: center;
-
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-
-  background: linear-gradient(
-    to bottom,
-    #ffd6e8,
-    #f7b7d3
-  );
-
-  padding: 12px 22px;
-  border-radius: 999px;
-
-  font-size: 1rem;       /* STÖRRE TEXT */
-  font-weight: 700;
-  color: #7a2e4a;
-
-box-shadow:
-  0 10px 20px rgba(0,0,0,0.18);
-
-  pointer-events: none;
-}
-
-.fish-icon {
-  font-size: 1.2rem;
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.25));
-}
-
-#score {
-  position: absolute;
-  top: 70px;              /* justera vid behov */
-  left: 50%;
-  transform: translateX(-50%);
-
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-
-  background: linear-gradient(
-    to bottom,
-    #ffd6e8,
-    #f7b7d3
-  );
-
-  padding: 4px 0px;
-  border-radius: 999px;
-
-  font-size: 1rem;       /* STÖRRE TEXT */
-  font-weight: 700;
-  color: #7a2e4a;
-
-  box-shadow:
-    0 10px 20px rgba(0,0,0,0.18),
-    inset 0 2px 0 rgba(255,255,255,0.7);
-
-  pointer-events: none;
-}
-
-#score {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
-}
-
-.score-fish {
-  font-size: 1rem;   /* 🐟 STORLEK */
-  line-height: 1;
-}
-
-.score-number {
-  font-size: 1rem;
-  font-weight: bold;
-}
-
-.score-text {
-  font-size: 1rem;
-  opacity: 0.8;
-}
-
-/* TOUCH-KONTROLLER */
+/* ===============================
+   TOUCH-KONTROLLER
+   =============================== */
 #touch-controls {
   position: fixed;
-  bottom: 24px;
+  bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 24px;
+  gap: 18px;
   z-index: 50;
 }
 
 #touch-controls button {
-  width: 72px;
-  height: 72px;
-  font-size: 2rem;
+  width: 64px;
+  height: 64px;
+  font-size: 1.6rem;
   border-radius: 50%;
   border: none;
   background: linear-gradient(#ffd6e8, #f7b7d3);
@@ -199,58 +163,30 @@ box-shadow:
   transform: scale(0.92);
 }
 
-* {
-  touch-action: manipulation;
-}
-
 /* ===============================
-   📱 MOBIL / TABLET
+   STÖRRE SKÄRMAR (DESKTOP)
    =============================== */
-@media (max-width: 768px) {
-
-  /* HUD */
-  #hud {
-    top: 16px;
-    gap: 6px;
-  }
+@media (min-width: 769px) {
 
   #game-logo {
-    max-height: 90px;
+    max-height: 120px;
   }
 
   #score {
-    top: 110px;
+    top: 120px;
     font-size: 1.4rem;
-    padding: 10px 24px;
+    padding: 14px 26px;
   }
 
   .score-fish {
     font-size: 2rem;
   }
 
-  .score-number,
-  .score-text {
-    font-size: 1.4rem;
-  }
-
-  /* 🐱 KATT */
   #cat {
-    width: 140px;   /* 👈 mindre katt på mobil */
+    width: 200px;
   }
 
-  /* 🎮 TOUCH-KNAPPAR */
   #touch-controls {
-    bottom: env(safe-area-inset-bottom);
-    gap: 18px;
+    display: none;
   }
-
-  #touch-controls button {
-    width: 64px;
-    height: 64px;
-    font-size: 1.8rem;
-  }
-}
-
-#game {
-  padding-bottom: env(safe-area-inset-bottom);
 }
