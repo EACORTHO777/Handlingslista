@@ -116,6 +116,9 @@ function render() {
   cat.style.left = x + "px";
   cat.style.top = y + "px";
   cat.style.transform = `scaleX(${direction})`;
+  const isMobile = window.innerWidth < 768;
+
+cat.style.top = (isMobile ? y - 10 : y) + "px";
 }
 
 /* ========= PLATTFORM ========= */
@@ -199,3 +202,25 @@ function checkFish() {
     }
   });
 }
+
+function bindTouch(id, key) {
+  const btn = document.getElementById(id);
+
+  btn.addEventListener("touchstart", e => {
+    e.preventDefault();
+    keys[key] = true;
+  });
+
+  btn.addEventListener("touchend", e => {
+    e.preventDefault();
+    keys[key] = false;
+  });
+
+  btn.addEventListener("touchcancel", () => {
+    keys[key] = false;
+  });
+}
+
+bindTouch("btn-left", "ArrowLeft");
+bindTouch("btn-right", "ArrowRight");
+bindTouch("btn-jump", "ArrowUp");

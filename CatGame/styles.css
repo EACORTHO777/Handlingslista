@@ -44,15 +44,13 @@ align-items: center;
 }
 
 #game-logo {
-  max-width: 80vw;
-  max-height: 140px;   /* 👈 styr höjden */
+  max-width: 50vw;
+  max-height: auto;   /* 👈 styr höjden */
   height: auto;
   border-bottom:none;
 
   object-fit: scale-down;
   display: block;
-
-  filter: drop-shadow(-10px 40px 60px rgba(0,0,0,0.25));
 }
 
 #hud h1 {
@@ -61,7 +59,7 @@ align-items: center;
 }
 
 #score {
-  margin-top: 4px;
+  margin-top: 1px;
 }
 
 /* KATT */
@@ -124,7 +122,7 @@ box-shadow:
 
 #score {
   position: absolute;
-  top: 140px;              /* justera vid behov */
+  top: 70px;              /* justera vid behov */
   left: 50%;
   transform: translateX(-50%);
 
@@ -138,10 +136,10 @@ box-shadow:
     #f7b7d3
   );
 
-  padding: 8px 36px;
+  padding: 4px 0px;
   border-radius: 999px;
 
-  font-size: 3rem;       /* STÖRRE TEXT */
+  font-size: 1rem;       /* STÖRRE TEXT */
   font-weight: 700;
   color: #7a2e4a;
 
@@ -156,20 +154,103 @@ box-shadow:
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 1px;
 }
 
 .score-fish {
-  font-size: 2.6rem;   /* 🐟 STORLEK */
+  font-size: 1rem;   /* 🐟 STORLEK */
   line-height: 1;
 }
 
 .score-number {
-  font-size: 1.8rem;
+  font-size: 1rem;
   font-weight: bold;
 }
 
 .score-text {
-  font-size: 1.8rem;
+  font-size: 1rem;
   opacity: 0.8;
+}
+
+/* TOUCH-KONTROLLER */
+#touch-controls {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 24px;
+  z-index: 50;
+}
+
+#touch-controls button {
+  width: 72px;
+  height: 72px;
+  font-size: 2rem;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(#ffd6e8, #f7b7d3);
+  box-shadow:
+    0 8px 16px rgba(0,0,0,0.25),
+    inset 0 2px 0 rgba(255,255,255,0.8);
+}
+
+#touch-controls button:active {
+  transform: scale(0.92);
+}
+
+* {
+  touch-action: manipulation;
+}
+
+/* ===============================
+   📱 MOBIL / TABLET
+   =============================== */
+@media (max-width: 768px) {
+
+  /* HUD */
+  #hud {
+    top: 16px;
+    gap: 6px;
+  }
+
+  #game-logo {
+    max-height: 90px;
+  }
+
+  #score {
+    top: 110px;
+    font-size: 1.4rem;
+    padding: 10px 24px;
+  }
+
+  .score-fish {
+    font-size: 2rem;
+  }
+
+  .score-number,
+  .score-text {
+    font-size: 1.4rem;
+  }
+
+  /* 🐱 KATT */
+  #cat {
+    width: 140px;   /* 👈 mindre katt på mobil */
+  }
+
+  /* 🎮 TOUCH-KNAPPAR */
+  #touch-controls {
+    bottom: env(safe-area-inset-bottom);
+    gap: 18px;
+  }
+
+  #touch-controls button {
+    width: 64px;
+    height: 64px;
+    font-size: 1.8rem;
+  }
+}
+
+#game {
+  padding-bottom: env(safe-area-inset-bottom);
 }
