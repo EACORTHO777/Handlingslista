@@ -3,91 +3,156 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Handlingslista</title>
-
-  <!-- 🔗 CSS (VIKTIGT) -->
+  <title>Familjeappen</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#f7c6d9">
+  <meta name="theme-color" content="#f7c6d9">
 </head>
 <body>
 
-  <div class="logo">
-  <img src="logo.png" alt="Handlingslista">
-</div>
+  <!-- ===== TAB: HANDLINGSLISTA ===== -->
+  <div id="tab-handlingslista" class="tab-content active">
 
-  <!-- 🔹 INPUT-RAD (MÅSTE omsluta allt för CSS) -->
-<div class="input-row">
-  <input
-    id="item-input"
-    type="text"
-    placeholder="Vara"
-    autocomplete="off"
-  />
+    <div class="logo">
+      <img src="logo.png" alt="Handlingslista">
+    </div>
 
-  <input
-    id="quantity-input"
-    type="number"
-    step="0.1"
-    min="0.1"
-    placeholder="Antal / vikt"
-    autocomplete="off"
-  />
+    <div class="input-row">
+      <input id="item-input" type="text" placeholder="Vara" autocomplete="off" />
+      <input id="quantity-input" type="number" step="0.1" min="0.1" placeholder="Antal / vikt" autocomplete="off" />
+      <select id="unit-input">
+        <option value="st">st</option>
+        <option value="kg">kg</option>
+        <option value="g">g</option>
+      </select>
+      <select id="category-input">
+        <option value="">Välj kategori</option>
+        <optgroup label="Frukt & Grönt / Skafferi mat">
+          <option value="Frukt & grönt">Frukt & grönt</option>
+          <option value="Skafferi">Skafferi</option>
+        </optgroup>
+        <optgroup label="Kaffe / Skafferi bak">
+          <option value="Kaffe">Kaffe</option>
+          <option value="Bakning">Bakning</option>
+        </optgroup>
+        <optgroup label="Kött & Fisk">
+          <option value="Kött & fisk">Kött & fisk</option>
+        </optgroup>
+        <optgroup label="Mejeri / Frys">
+          <option value="Mejeri">Mejeri</option>
+          <option value="Frysvaror">Frysvaror</option>
+        </optgroup>
+        <optgroup label="Hygien / Hushåll / LEÅ">
+          <option value="Hygien">Hygien</option>
+          <option value="Hushåll">Hushåll</option>
+          <option value="Leå">LEÅ</option>
+        </optgroup>
+        <optgroup label="Pasta / Ris / Ketchup">
+          <option value="Pasta">Pasta</option>
+          <option value="Ris">Ris</option>
+          <option value="Ketchup">Ketchup</option>
+        </optgroup>
+        <optgroup label="Drycker & NJIÅM">
+          <option value="Drycker">Drycker</option>
+          <option value="Njiåm">NJIÅM</option>
+        </optgroup>
+      </select>
+      <button id="add-btn" type="button">Lägg till</button>
+      <button id="clear-btn" type="button">Rensa listan</button>
+    </div>
 
-  <select id="unit-input">
-    <option value="st">st</option>
-    <option value="kg">kg</option>
-    <option value="g">g</option>
-  </select>
+    <div id="todo-list"></div>
+  </div>
 
-  <select id="category-input">
-    <option value="">Välj kategori</option>
+  <!-- ===== TAB: KALENDER ===== -->
+  <div id="tab-kalender" class="tab-content">
 
-    <optgroup label="🥦 Frukt & Grönt / Skafferi mat">
-      <option value="Frukt & grönt">Frukt & grönt 🍌</option>
-      <option value="Skafferi">Skafferi 🧂</option>
-    </optgroup>
+    <div class="cal-nav">
+      <button id="prev-month">&#8249;</button>
+      <span id="month-label"></span>
+      <button id="next-month">&#8250;</button>
+    </div>
 
-    <optgroup label="☕️ Kaffe / Skafferi bak">
-      <option value="Kaffe">Kaffe ☕️</option>
-      <option value="Bakning">Bakning 🍰</option>
-    </optgroup>
+    <div id="calendar-grid" class="calendar-grid"></div>
 
-    <optgroup label="🥩 Kött & Fisk">
-      <option value="Kött & fisk">Kött & fisk 🍖</option>
-    </optgroup>
+    <div id="day-events" class="day-events"></div>
 
-    <optgroup label="🧀 Mejeri / Frys">
-      <option value="Mejeri">Mejeri 🐮</option>
-      <option value="Frysvaror">Frysvaror 🧊</option>
-    </optgroup>
+    <button id="add-event-btn" class="add-event-btn hidden">Lägg till händelse</button>
 
-    <optgroup label="🧼 Hygien / Hushåll / LEÅ">
-      <option value="Hygien">Hygien 🧴</option>
-      <option value="Hushåll">Hushåll 🧹</option>
-      <option value="Leå">LEÅ 🍼</option>
-    </optgroup>
+    <div id="event-form" class="event-form hidden">
+      <input id="event-title" type="text" placeholder="Händelse" autocomplete="off" />
+      <select id="event-person">
+        <option value="Alexander">Alexander</option>
+        <option value="Alexandra">Alexandra</option>
+        <option value="Båda">Båda</option>
+      </select>
+      <div class="event-form-btns">
+        <button id="save-event">Spara</button>
+        <button id="cancel-event">Avbryt</button>
+      </div>
+    </div>
 
-    <optgroup label="🍝 Pasta / Ris / Ketchup">
-      <option value="Pasta">Pasta 🍝</option>
-      <option value="Ris">Ris 🍚</option>
-      <option value="Ketchup">Ketchup 🍅</option>
-    </optgroup>
+  </div>
 
-    <optgroup label="🥤 Drycker & NJIÅM">
-      <option value="Drycker">Drycker 🥤</option>
-      <option value="Njiåm">NJIÅM 🤓</option>
-    </optgroup>
-  </select>
+  <!-- ===== TAB: ATT-GÖRA ===== -->
+  <div id="tab-attgora" class="tab-content">
 
-  <button id="add-btn" type="button">Lägg till</button>
-  <button id="clear-btn" type="button">Rensa listan</button>
-</div>
+    <div class="todo-top">
+      <div class="todo-input-row">
+        <input id="todo-input" type="text" placeholder="Ny uppgift" autocomplete="off" />
+        <select id="todo-person">
+          <option value="Alexander">Alexander</option>
+          <option value="Alexandra">Alexandra</option>
+          <option value="Båda">Båda</option>
+        </select>
+        <button id="todo-add-btn">Lägg till</button>
+      </div>
+      <div class="filter-row">
+        <button class="filter-btn active" data-person="alla">Alla</button>
+        <button class="filter-btn" data-person="Alexander">Alexander</button>
+        <button class="filter-btn" data-person="Alexandra">Alexandra</button>
+      </div>
+    </div>
 
-  <!-- 🔹 LISTAN -->
-  <div id="todo-list"></div>
+    <div id="todo-list-attgora"></div>
 
-  <!-- 🔗 JS -->
+  </div>
+
+  <!-- ===== BOTTOM NAV ===== -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-tab="handlingslista">
+      <span class="nav-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+          <rect x="9" y="3" width="6" height="4" rx="1"/>
+          <line x1="9" y1="12" x2="15" y2="12"/>
+          <line x1="9" y1="16" x2="13" y2="16"/>
+        </svg>
+      </span>
+      <span class="nav-label">Handlingar</span>
+    </button>
+    <button class="nav-btn" data-tab="kalender">
+      <span class="nav-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </span>
+      <span class="nav-label">Kalender</span>
+    </button>
+    <button class="nav-btn" data-tab="attgora">
+      <span class="nav-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 11 12 14 22 4"/>
+          <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+        </svg>
+      </span>
+      <span class="nav-label">Att-göra</span>
+    </button>
+  </nav>
+
   <script type="module" src="script.js"></script>
 </body>
 </html>
