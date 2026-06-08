@@ -365,7 +365,8 @@ li {
   display: none;
 }
 
-.event-form input,
+.event-form input[type="text"],
+.event-form input[type="time"],
 .event-form select {
   width: 100%;
   padding: 12px;
@@ -374,6 +375,80 @@ li {
   border-radius: 14px;
   border: 1px solid #ddd;
   background: #fafafa;
+}
+
+.event-form input[type="time"] {
+  color: #333;
+}
+
+/* Time toggle row */
+.time-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 0 2px;
+}
+
+.time-toggle-label {
+  font-size: 15px;
+  color: #555;
+}
+
+/* Toggle switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 27px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #ddd;
+  border-radius: 27px;
+  transition: background 0.2s;
+}
+
+.toggle-slider::before {
+  content: "";
+  position: absolute;
+  height: 21px;
+  width: 21px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: linear-gradient(135deg, #f7c6d9, #c0a0e0);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(19px);
+}
+
+/* Event time badge */
+.event-time-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: #a060c0;
+  white-space: nowrap;
+  background: #f3ecff;
+  padding: 2px 7px;
+  border-radius: 8px;
 }
 
 .event-form-btns {

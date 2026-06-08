@@ -21,6 +21,29 @@ const eventsRef = ref(db, "events");
 const todosRef  = ref(db, "todos");
 
 // ===========================
+// NOTIFICATIONS
+// ===========================
+
+const lastVisit   = Number(localStorage.getItem("lastVisit") || Date.now());
+const appLoadTime = Date.now();
+const selfPushed  = { items: new Set(), events: new Set(), todos: new Set() };
+
+function saveLastVisit() {
+  localStorage.setItem("lastVisit", Date.now());
+}
+document.addEventListener("visibilitychange", () => { if (document.hidden) saveLastVisit(); });
+window.addEventListener("beforeunload", saveLastVisit);
+
+if ("Notification" in window && Notification.permission === "default") {
+  setTimeout(() => Notification.requestPermission(), 1500);
+}
+
+function notify(title, body) {
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  new Notification(title, { body, icon: "logo.png" });
+}
+
+// ===========================
 // TAB SWITCHING
 // ===========================
 
@@ -104,7 +127,8 @@ function addItem() {
   learnedMap[key] = { category, unit };
   localStorage.setItem("learnedMap", JSON.stringify(learnedMap));
 
-  push(itemsRef, { name, amount, unit, category, done: false, createdAt: Date.now() });
+  const newRef = push(itemsRef, { name, amount, unit, category, done: false, createdAt: Date.now() });
+  selfPushed.items.add(newRef.key);
   itemInput.value = "";
   quantityInput.value = "";
   itemInput.focus();
@@ -115,9 +139,18 @@ clearBtn.addEventListener("click", () => {
   remove(itemsRef);
 });
 
+let itemsFirstLoad = true;
 onValue(itemsRef, snapshot => {
   const data  = snapshot.val() || {};
   const items = Object.entries(data).map(([id, v]) => ({ id, ...v }));
+
+  const cutoff = itemsFirstLoad ? lastVisit : appLoadTime;
+  itemsFirstLoad = false;
+
+  items
+    .filter(i => !i.done && i.createdAt > cutoff && !selfPushed.items.has(i.id))
+    .forEach(i => notify("Ny vara i handlingslistan", `${i.name} – ${i.amount} ${i.unit}`));
+
   renderItems(items);
 });
 
@@ -179,8 +212,18 @@ function personClass(person) {
   return { Alexander: "alexander", Alexandra: "alexandra", Båda: "bada" }[person] ?? "bada";
 }
 
+let eventsFirstLoad = true;
 onValue(eventsRef, snapshot => {
-  allEvents = snapshot.val() || {};
+  const data = snapshot.val() || {};
+
+  const cutoff = eventsFirstLoad ? lastVisit : appLoadTime;
+  eventsFirstLoad = false;
+
+  Object.entries(data)
+    .filter(([id, e]) => e.createdAt > cutoff && !selfPushed.events.has(id))
+    .forEach(([, e]) => notify("Ny händelse i kalendern", `${e.title} – ${e.person}`));
+
+  allEvents = data;
   renderCalendar();
   renderDayEvents();
 });
@@ -280,7 +323,12 @@ function renderDayEvents() {
   const dayEvents = Object.entries(allEvents)
     .filter(([, e]) => e.date === selectedDate)
     .map(([id, e]) => ({ id, ...e }))
-    .sort((a, b) => a.createdAt - b.createdAt);
+    .sort((a, b) => {
+      if (a.time && b.time) return a.time.localeCompare(b.time);
+      if (a.time) return -1;
+      if (b.time) return 1;
+      return a.createdAt - b.createdAt;
+    });
 
   const [y, m, d] = selectedDate.split("-");
   const dateObj   = new Date(Number(y), Number(m) - 1, Number(d));
@@ -316,6 +364,14 @@ function renderDayEvents() {
 
       item.appendChild(badge);
       item.appendChild(title);
+
+      if (ev.time) {
+        const timeBadge = document.createElement("span");
+        timeBadge.className = "event-time-badge";
+        timeBadge.textContent = ev.time;
+        item.appendChild(timeBadge);
+      }
+
       item.appendChild(del);
       container.appendChild(item);
     });
@@ -332,18 +388,31 @@ document.getElementById("add-event-btn").addEventListener("click", () => {
   }
 });
 
+document.getElementById("event-time-toggle").addEventListener("change", function () {
+  const timeInput = document.getElementById("event-time");
+  timeInput.classList.toggle("hidden", !this.checked);
+  if (this.checked) timeInput.focus();
+});
+
 document.getElementById("save-event").addEventListener("click", saveEvent);
 document.getElementById("event-title").addEventListener("keypress", e => {
   if (e.key === "Enter") saveEvent();
 });
 
 function saveEvent() {
-  const title  = document.getElementById("event-title").value.trim();
-  const person = document.getElementById("event-person").value;
+  const title       = document.getElementById("event-title").value.trim();
+  const person      = document.getElementById("event-person").value;
+  const timeToggle  = document.getElementById("event-time-toggle");
+  const time        = timeToggle.checked ? document.getElementById("event-time").value : null;
   if (!title || !selectedDate) return;
 
-  push(eventsRef, { date: selectedDate, title, person, createdAt: Date.now() });
+  const newRef = push(eventsRef, { date: selectedDate, title, person, time: time || null, createdAt: Date.now() });
+  selfPushed.events.add(newRef.key);
+
   document.getElementById("event-title").value = "";
+  document.getElementById("event-time").value  = "";
+  timeToggle.checked = false;
+  document.getElementById("event-time").classList.add("hidden");
   document.getElementById("event-form").classList.add("hidden");
 }
 
@@ -361,8 +430,18 @@ renderCalendar();
 let allTodos           = {};
 let selectedPersonFilter = "alla";
 
+let todosFirstLoad = true;
 onValue(todosRef, snapshot => {
-  allTodos = snapshot.val() || {};
+  const data = snapshot.val() || {};
+
+  const cutoff = todosFirstLoad ? lastVisit : appLoadTime;
+  todosFirstLoad = false;
+
+  Object.entries(data)
+    .filter(([id, t]) => !t.done && t.createdAt > cutoff && !selfPushed.todos.has(id))
+    .forEach(([, t]) => notify("Ny uppgift i att-göra", `${t.title} – ${t.person}`));
+
+  allTodos = data;
   renderTodos();
 });
 
@@ -376,7 +455,8 @@ function addTodo() {
   const person = document.getElementById("todo-person").value;
   if (!title) return;
 
-  push(todosRef, { title, person, done: false, createdAt: Date.now() });
+  const newRef = push(todosRef, { title, person, done: false, createdAt: Date.now() });
+  selfPushed.todos.add(newRef.key);
   document.getElementById("todo-input").value = "";
   document.getElementById("todo-input").focus();
 }
